@@ -5,3 +5,4 @@ dist/
 build/
 doc/_build/
 *-pages-articles.xml.bz2
+extracted/

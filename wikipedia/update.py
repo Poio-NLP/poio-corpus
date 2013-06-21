@@ -8,7 +8,10 @@
 # For license information, see LICENSE.TXT
 
 import os
+import sys
 import re
+import glob
+import codecs
 import xml.etree.ElementTree as ET
 import urllib2
 import urlparse
@@ -42,10 +45,40 @@ for wiki_name, page in lang_pages:
         sys.exit(1)
 
     print("Downloading {0}...".format(dump_link))
-    r = requests.get(dump_link)
     file_name = dump_link.split('/')[-1]
-    with open(os.path.join(wiki_name, file_name), "wb") as f:
-        f.write(r.content)
+    file_path = os.path.join(wiki_name, file_name)
+    if not os.path.exists(file_path):
+        r = requests.get(dump_link)
+        with open(file_path, "wb") as f:
+            f.write(r.content)
 
+    os.system("{0} WikiExtractor.py -w -f tanl {1} {2}/extracted".format(
+        sys.executable,
+        file_path,
+        wiki_name))
+
+    # Concatenate output files
+    filenames = glob.glob("{0}/extracted/*.raw".format(wiki_name))
+    with codecs.open(os.path.join(
+            wiki_name, "{0}.xml".format(wiki_name)), 'w', 'utf-8') as outfile:
+        for fname in filenames:
+            with codecs.open(fname, "r", "utf-8") as infile:
+                for line in infile:
+                    outfile.write(line)
+
+    print("Cleaning...")
+    os.system("{0} clean.py {1} {2}".format(
+        sys.executable,
+        os.path.join(wiki_name, "{0}.xml".format(wiki_name)),
+        os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name))))
+
+    os.system("{0} {1}/clean.py {2} {3}".format(
+        sys.executable,
+        wiki_name,
+        os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name)),
+        os.path.join(wiki_name, "{0}_cleaned.xml".format(wiki_name))))
+
+    print
+    
 #tree = ET.parse('barwiki-cleaned.xml')
 #root = tree.getroot()
