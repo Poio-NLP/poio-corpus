@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import regex as re
+import re
 import codecs
 
 def re_title_cleaned(matchobj):
@@ -23,10 +23,13 @@ def main(argv):
 
 
     lines_to_delete = [
+        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei  Kategorien die folgende Zeile EINFÜGEN:",
+        u"  </noinclude</includeonly»<includeonly</includeonly» BITTSCHÖN ENTFERN DII KOMMENTARE </includeonly</includeonly»",
+        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei Kategorien die folgende Zeile EINFÜGEN:"
     ]
 
     for line in f1:
-        if line in lines_to_delete:
+        if line.rstrip() in lines_to_delete:
             f2.write("\n")
             continue
 
