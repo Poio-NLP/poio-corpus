@@ -1,0 +1,8 @@
+!!python/unicode 'about.html': [base.j2, analytics.j2]
+!!python/unicode 'index.html': [base.j2, analytics.j2]
+!!python/unicode 'media\css\site.css': []
+!!python/unicode 'media\css\syntax.css': []
+!!python/unicode 'media\data\world-110m.json': []
+!!python/unicode 'media\js\libs\dd_belatedpng.js': []
+!!python/unicode 'media\js\libs\jquery-1.5.1.min.js': []
+!!python/unicode 'media\js\libs\modernizr-1.7.min.js': []
