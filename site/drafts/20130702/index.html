@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Archivo+Black' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+    h1,h2 {
+      font-family: 'Archivo Black', sans-serif;
+      color: #777;
+    }
+    h1 {
+      font-size:36px;
+    }
+    h2 {
+      font-size:20px;
+    }
+    div, p {
+      font-family: 'Open Sans', Verdana, Arial, sans-serif;
+      color: #777;
+    }
+    a {
+      text-decoration: none;
+      border-bottom: 1px dotted;
+      font-weight: bold;      
+    }
+    a:link{color:inherit}
+    a:active{color:inherit}
+    a:visited{color:#555}
+    a:hover{color:inherit}
+    div#footer {
+      font-size:12px;
+    }
+    div#footer a {
+      margin-right: 30px;
+    }
+    div#header a {
+      margin-right: 30px;
+      font-size:20px;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="body">
+      <div id="header" style="position:absolute; top:10px; left:0;width:1000px; text-align: right;">
+        <a href="semantics">About</a>
+        <a href="semantics">Corpus</a>
+        <a href="semantics">Tools</a>
+        <a href="documenation">Documentation</a>
+        <a href="semantics">Blog</a>
+      </div>
+      <div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
+      </div>
+      <div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px;">
+        <h1>The Poio Corpus</h1>
+        <h2>Language Technologies for Lesser-Used Languages</h2>
+        <p>
+          The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="about">More...</a>
+        </p>
+
+        <!-- Begin MailChimp Signup Form -->
+        <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+          #mc_embed_signup{clear:left; font:14px; margin-left:-10px; }
+          /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+             We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+        </style>
+        <div id="mc_embed_signup">
+        <form action="http://brickband.us5.list-manage.com/subscribe/post?u=0dbbf1894965f1d6e74b8728a&amp;id=9887fcd7f4" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+          <label for="mce-EMAIL">Subscribe to our mailing list</label>
+          <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+          <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+        </form>
+        </div>
+        <!--End mc_embed_signup-->
+
+        <!--<div style="width:250px;">
+          <ul>
+            <li>Read more about the <a href="about">ideas behind The Poio Corpus</a></li>
+            <li>Read more about how to <a href="documentation#download">use the corpus files in your own workflows</a></li>
+            <li>Read more about how to <a href="documentation#web">access the Web API of The Poio Corpus</a></li>
+          </ul>
+        </div>-->
+      </div> <!-- teaser -->
+      <div id="footer" style="position:absolute; top:660px; left:0; width:1000px; text-align:center;">
+        Created by <a href="http://www.cidles.eu">Centro Interdisciplinar de Documentação Linguística e Social</a>
+      </div>
+    </div> <!-- body -->
+    <script type="text/javascript">
+
+var width = 1000,
+    height = 600;
+
+var canvas = d3.select("#map").append("canvas")
+    .attr("width", width)
+    .attr("height", height);
+
+var c = canvas.node().getContext("2d");
+
+var projection = d3.geo.orthographic()
+    .scale(250)
+    .translate([700,250])
+    .clipAngle(90)
+    .clipExtent([[0,0],[width,height]]);
+
+var path = d3.geo.path()
+    .projection(projection)
+    .context(c);
+    
+queue()
+    .defer(d3.json, "world-110m.json")
+    .await(ready);
+
+function ready(error, world) {
+  var land = topojson.feature(world, world.objects.land),
+      countries = topojson.feature(world, world.objects.countries),
+      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+
+  c.clearRect(0, 0, width, height);
+  c.fillStyle = "#ccf", c.beginPath(), path(land), c.fill();
+  c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();        
+
+  (function transition() {
+    d3.transition()
+      .delay(1000)
+      .duration(2500)
+      .tween("rotate", function() {
+        var r = d3.interpolate(projection.rotate(), [-25, -57]);
+        var s = d3.interpolate(projection.scale(), 900);
+        return function(t) {
+          projection.rotate(r(t));
+          projection.scale(s(t));
+          c.clearRect(0, 0, width, height);
+          c.fillStyle = "#ccf", c.beginPath(), path(land), c.fill();
+          c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();
+        };
+      })
+  })();
+
+}
+
+    </script>
+  </body>
+</html>
