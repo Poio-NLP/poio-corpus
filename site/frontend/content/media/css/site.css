@@ -80,18 +80,43 @@ a {
 
 a:link{color:inherit}
 a:active{color:inherit}
-a:visited{color:#555}
+a:visited{color:#777}
 a:hover{color:inherit}
+
+#body {
+  width:1000px;
+}
+
+#header {
+  margin-top:10px;
+  left:0;
+  width:100%;
+  text-align: right;
+}
+
+#main {
+  margin-left:20px;
+  margin-bottom:20px;
+  width:600px;
+  text-align: justify;
+}
+
+#footer {
+  margin-top:10px;
+  width:100%;
+  text-align:center;  
+  /*border-top: 1px dotted black;*/
+}
 
 div#footer {
   font-size:12px;
 }
 
-div#footer a {
-  margin-right: 30px;
-}
-
 div#header a {
   margin-right: 30px;
   font-size:20px;
+}
+
+ul {
+  list-style-position: inside;
 }

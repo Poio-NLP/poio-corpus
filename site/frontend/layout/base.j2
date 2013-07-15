@@ -44,25 +44,32 @@
   {% block content %}
     <div id="body">
       {% block container %}
-      <div id="header" style="position:absolute; top:10px; left:0;width:1000px; text-align: right;">
-          {% block header -%}
-          {%- endblock %}
+      <div id="header">
+        {% block header -%}
+        {%- endblock %}
 
+        <a href="index.html">Start</a>
         <a href="about.html">About</a>
-        <a href="semantics">Corpus</a>
-        <a href="semantics">Tools</a>
-        <a href="documenation">Documentation</a>
+        <a href="corpus.html">Corpus</a>
+        <a href="tools.html">Tools</a>
+        <a href="documenation.html">Documentation</a>
         <!--<a href="semantics">Blog</a>-->
       </div>
 
-      {% block main %}
-      {% endblock main %}
+      <div id="main">
 
+        {% block main %}
+        {% endblock main %}
+
+      </div>
+
+    <div id="footer">
+      <!--<hr style="width:80%;border-top: 1px solid #777; margin-left:auto; margin-right:auto;">-->
+      Created by <a href="http://www.cidles.eu">Centro Interdisciplinar de Documentação Linguística e Social</a>,
+      Peter Bouda <a href="mailo:pbouda@cidles.eu">pbouda@cidles.eu</a>
+    </div>
     {% endblock container %}
   </div> <!--! end of #container -->
-  <div id="footer" style="position:absolute; top:660px; left:0; width:1000px; text-align:center;">
-    Created by <a href="http://www.cidles.eu">Centro Interdisciplinar de Documentação Linguística e Social</a>
-  </div>
   {% endblock content%}
 
   {% block js %}

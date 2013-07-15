@@ -3,14 +3,16 @@ extends: base.j2
 ---
 
 {% block main %}
+<div style="width:1000px; height:600px;">
+</div>
 <div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
 </div>
-<div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px;">
+<div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px; text-align:left;">
 
 	<h1>The Poio Corpus</h1>
 	<h2>Language Technologies for Lesser-Used Languages</h2>
 	<p>
-	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="about">More...</a>
+	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="about.html">More...</a>
 	</p>
 
 	<!-- Begin MailChimp Signup Form -->
@@ -68,7 +70,7 @@ extends: base.j2
 	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
 
 	  c.clearRect(0, 0, width, height);
-	  c.fillStyle = "#ccf", c.beginPath(), path(land), c.fill();
+	  c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
 	  c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();        
 
 	  (function transition() {
@@ -82,7 +84,7 @@ extends: base.j2
 	          projection.rotate(r(t));
 	          projection.scale(s(t));
 	          c.clearRect(0, 0, width, height);
-	          c.fillStyle = "#ccf", c.beginPath(), path(land), c.fill();
+	          c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
 	          c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();
 	        };
 	      })
