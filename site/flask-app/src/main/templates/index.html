@@ -1,0 +1,94 @@
+{% extends "base.j2" %}
+
+{% block main %}
+<div style="width:1000px; height:600px;">
+</div>
+<div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
+</div>
+<div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px; text-align:left;">
+
+	<h1>The Poio Corpus</h1>
+	<h2>Language Technologies for Lesser-Used Languages</h2>
+	<p>
+	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="about.html">More...</a>
+	</p>
+
+	<!-- Begin MailChimp Signup Form -->
+	<link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+	<style type="text/css">
+	  #mc_embed_signup{clear:left; font:14px; margin-left:-10px; }
+	  /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+	     We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+	</style>
+	<div id="mc_embed_signup">
+	<form action="http://brickband.us5.list-manage.com/subscribe/post?u=0dbbf1894965f1d6e74b8728a&amp;id=9887fcd7f4" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+	  <label for="mce-EMAIL">Subscribe to our mailing list</label>
+	  <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+	  <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+	</form>
+	</div>
+	<!--End mc_embed_signup-->
+
+</div> <!-- teaser -->
+{% endblock %}
+
+{% block scripts %}
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+	<script type="text/javascript">
+
+	var width = 1000,
+	    height = 600;
+
+	var canvas = d3.select("#map").append("canvas")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	var c = canvas.node().getContext("2d");
+
+	var projection = d3.geo.orthographic()
+	    .scale(250)
+	    .translate([700,250])
+	    .clipAngle(90)
+	    .clipExtent([[0,0],[width,height]]);
+
+	var path = d3.geo.path()
+	    .projection(projection)
+	    .context(c);
+	    
+	queue()
+	    .defer(d3.json, "/static/media/data/world-110m.json")
+	    .await(ready);
+
+	function ready(error, world) {
+	  var land = topojson.feature(world, world.objects.land),
+	      countries = topojson.feature(world, world.objects.countries),
+	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+
+	  c.clearRect(0, 0, width, height);
+	  c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
+	  c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();        
+
+	  (function transition() {
+	    d3.transition()
+	      .delay(1000)
+	      .duration(2500)
+	      .tween("rotate", function() {
+	        var r = d3.interpolate(projection.rotate(), [-25, -57]);
+	        var s = d3.interpolate(projection.scale(), 900);
+	        return function(t) {
+	          projection.rotate(r(t));
+	          projection.scale(s(t));
+	          c.clearRect(0, 0, width, height);
+	          c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
+	          c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();
+	        };
+	      })
+	  })();
+
+	}
+
+	</script>
+{% endblock %}
