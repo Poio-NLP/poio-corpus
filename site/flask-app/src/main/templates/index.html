@@ -3,14 +3,12 @@
 {% block main %}
 <div style="width:1000px; height:600px;">
 </div>
-<div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
-</div>
 <div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px; text-align:left;">
 
 	<h1>The Poio Corpus</h1>
 	<h2>Language Technologies for Lesser-Used Languages</h2>
 	<p>
-	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="about.html">More...</a>
+	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="{{ url_for('about') }}">More...</a>
 	</p>
 
 	<!-- Begin MailChimp Signup Form -->
@@ -30,23 +28,37 @@
 	<!--End mc_embed_signup-->
 
 </div> <!-- teaser -->
+<div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
+</div>
 {% endblock %}
 
 {% block scripts %}
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>
 
 	<script type="text/javascript">
 
 	var width = 1000,
 	    height = 600;
 
-	var canvas = d3.select("#map").append("canvas")
+	/*var canvas = d3.select("#map").append("canvas")
 	    .attr("width", width)
-	    .attr("height", height);
+	    .attr("height", height);*/
+    var stage = new Kinetic.Stage({
+      container: 'map',
+      width: width,
+      height: height
+    });
+    var worldLayer = new Kinetic.Layer();
+    var shapesLayer = new Kinetic.Layer();
+    var tooltipLayer = new Kinetic.Layer();
+    stage.add(worldLayer);
+    stage.add(shapesLayer);
+    stage.add(tooltipLayer);
 
-	var c = canvas.node().getContext("2d");
+	var c = worldLayer.getContext();
 
 	var projection = d3.geo.orthographic()
 	    .scale(250)
@@ -59,7 +71,7 @@
 	    .context(c);
 	    
 	queue()
-	    .defer(d3.json, "/static/media/data/world-110m.json")
+	    .defer(d3.json, '/static/media/data/world-110m.json')
 	    .await(ready);
 
 	function ready(error, world) {
@@ -68,9 +80,74 @@
 	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
 
 	  c.clearRect(0, 0, width, height);
-	  c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
-	  c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();        
+	  
+	  function draw_land() {
+        c.beginPath();
+    	c.fillStyle = "#acf";
+		path(land);
+		c.fill();
+		  
+		c.beginPath();
+		c.strokeStyle = "#fff"; 
+		c.lineWidth = .5;
+		path(borders);
+		c.stroke();
+	  }
+	  draw_land();
 
+	  function draw_languages() {
+	    var languages = JSON.parse('{{ languages_json }}');
+	    Object.keys(languages).forEach(function (key) {
+	      var value = languages[key]
+	      var centerX = projection([value.geo.lon, value.geo.lat])[0];
+	      var centerY = projection([value.geo.lon, value.geo.lat])[1];
+
+	      var circle = new Kinetic.Circle({
+	        x: centerX,
+            y: centerY,
+            fill: "red",
+            stroke: "#330000",
+            strokeWidth: 2,
+            radius: 5
+          });
+
+          circle.on("mousemove", function(){
+            var mousePos = stage.getMousePosition();
+            tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
+            tooltip.setText(value.label);
+            tooltip.show();
+            tooltipLayer.draw();
+            document.body.style.cursor = "pointer";
+          });
+ 
+          circle.on("mouseout", function(){
+            tooltip.hide();
+            tooltipLayer.draw();
+            document.body.style.cursor = "default";
+          });
+
+          shapesLayer.add(circle);
+
+	  	});
+
+  	    var tooltip = new Kinetic.Text({
+  	      text: "",
+	      fontFamily: "Calibri",
+	      fontSize: 12,
+	      padding: 5,
+	      textFill: "white",
+	      fill: "black",
+	      alpha: 0.75,
+	      visible: false
+	    });
+		tooltipLayer.add(tooltip);
+        shapesLayer.draw();
+	  }
+
+	  function show_languages() {
+	  	draw_languages();
+	  }
+ 
 	  (function transition() {
 	    d3.transition()
 	      .delay(1000)
@@ -82,10 +159,11 @@
 	          projection.rotate(r(t));
 	          projection.scale(s(t));
 	          c.clearRect(0, 0, width, height);
-	          c.fillStyle = "#acf", c.beginPath(), path(land), c.fill();
-	          c.strokeStyle = "#fff", c.lineWidth = .5, c.beginPath(), path(borders), c.stroke();
+			  draw_land();
+	  		  //draw_languages();
 	        };
 	      })
+	      .each("end", show_languages)
 	  })();
 
 	}

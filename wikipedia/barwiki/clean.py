@@ -20,7 +20,7 @@ def main(argv):
     re_arrows = re.compile("(<==<==<==<|>==>==>==>)")
     re_special1 = re.compile("Le<")
     re_special2 = re.compile("ci<:")
-
+    re_img = re.compile(" [^ ]*\.jpg\|")
 
     lines_to_delete = [
         u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei  Kategorien die folgende Zeile EINFÜGEN:",
@@ -40,6 +40,8 @@ def main(argv):
 
         line = re_special1.sub("Le&lt;", line)
         line = re_special2.sub("ci&lt;:", line)
+
+        line = re_img.sub(" ", line)
 
         f2.write(line)
 

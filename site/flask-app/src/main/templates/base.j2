@@ -48,8 +48,8 @@
         {% block header -%}
         {%- endblock %}
 
-        <a href="/">Start</a>
-        <a href="/about">About</a>
+        <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('about') }}">About</a>
         <a href="/corpus/">Corpus</a>
         <a href="/tools/">Tools</a>
         <a href="/documentation">Documentation</a>

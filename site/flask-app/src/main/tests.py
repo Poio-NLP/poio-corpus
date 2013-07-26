@@ -7,17 +7,30 @@ class MainTestCase(unittest.TestCase):
     def setUp(self):
         """Before each test, set up a blank database"""
         self.app = main.app.test_client()
-        #hello.init_db()
-
-    def tearDown(self):
-        """Get rid of the database again after each test."""
-        pass
 
     def test_main(self):
         """Test rendered page."""
         rv = self.app.get('/')
-        assert 'Hello World!' in rv.data
+        assert 'Poio Corpus' in rv.data
 
+    def test_about(self):
+        """Test rendered page."""
+        rv = self.app.get('/about')
+        assert 'Poio Corpus' in rv.data
+
+class RdfIsoTestCase(unittest.TestCase):
+
+    def test_geo(self):
+        """Test query of geo information"""
+        rdf = main.RdfIso('bar')
+        assert rdf.geo() == (u"47.9232", u"13.246")
+
+    def test__label_for_iso(self):
+        """Test query of label"""
+        rdf = main.RdfIso('bar')
+        assert rdf.label() == u"Bavarian"
+        rdf = main.RdfIso('ast')
+        assert rdf.label() == u"Asturian"
 
 def suite():
     suite = unittest.TestSuite()
