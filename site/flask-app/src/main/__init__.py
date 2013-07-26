@@ -8,7 +8,11 @@ app = Flask(__name__)
 
 supported_languages =  [
     'bar',
-#    'ast'
+#    'ast',
+#    'arg',
+#    'nds',
+#    'gsw',
+#    'oci'
 ]
 
 languages_data = {}
