@@ -4,6 +4,9 @@ import json
 from flask import Flask, render_template, Markup
 import rdflib
 
+from werkzeug.contrib.cache import SimpleCache
+cache = SimpleCache()
+
 app = Flask(__name__)
 
 supported_languages =  [
@@ -15,23 +18,18 @@ supported_languages =  [
 #    'oci'
 ]
 
-languages_data = {}
+
+###################################### Pages
 
 @app.route("/")
 def index():
+    languages_data = {}
     for iso in supported_languages:
         if not iso in languages_data:
-            rdf = RdfIso(iso)
-            (latitude, longitude) = rdf.geo()
-            label = rdf.label()
-            languages_data[iso] = {
-                'label' : label,
-                'geo': {
-                    'lat': latitude,
-                    'lon': longitude
-                }
-            }
-        languages_json = json.dumps(languages_data)
+            language_info = get_info_for_iso(iso)
+            languages_data[iso] = language_info
+
+    languages_json = json.dumps(languages_data)
 
     return render_template('index.html',
         languages_json = Markup(languages_json))
@@ -39,6 +37,25 @@ def index():
 @app.route("/about")
 def about():
     return render_template('about.html')
+
+
+##################################### Helpers
+
+def get_info_for_iso(iso):
+    rv = cache.get(iso)
+    if rv is None:
+        rdf = RdfIso(iso)
+        (latitude, longitude) = rdf.geo()
+        label = rdf.label()
+        rv = {
+            'label' : label,
+            'geo': {
+                'lat': latitude,
+                'lon': longitude
+            }
+        }
+        cache.set(iso, rv)
+    return rv
 
 class RdfIso:
 

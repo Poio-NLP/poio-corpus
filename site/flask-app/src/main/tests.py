@@ -18,19 +18,24 @@ class MainTestCase(unittest.TestCase):
         rv = self.app.get('/about')
         assert 'Poio Corpus' in rv.data
 
+    def test_get_info_for_iso(self):
+        """Test query of geo information"""
+        rv = main.get_info_for_iso('bar')
+        assert rv == { 'label' : u'Bavarian', 'geo': { 'lat': u'47.9232', 'lon': u'13.246' } }
+
 class RdfIsoTestCase(unittest.TestCase):
 
     def test_geo(self):
         """Test query of geo information"""
         rdf = main.RdfIso('bar')
-        assert rdf.geo() == (u"47.9232", u"13.246")
+        assert rdf.geo() == (u'47.9232', u'13.246')
 
     def test__label_for_iso(self):
         """Test query of label"""
         rdf = main.RdfIso('bar')
-        assert rdf.label() == u"Bavarian"
+        assert rdf.label() == u'Bavarian'
         rdf = main.RdfIso('ast')
-        assert rdf.label() == u"Asturian"
+        assert rdf.label() == u'Asturian'
 
 def suite():
     suite = unittest.TestSuite()
