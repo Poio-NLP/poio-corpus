@@ -35,8 +35,11 @@ for wiki_name, page in lang_pages:
     soup = BeautifulSoup(html_page)
     all_links = soup('a')
     dump_link = None
+    wiki_date = None
     for l in all_links:
-        if re.match(wiki_name + "-\d{8}-pages-articles.xml.bz2", l.string):
+        match = re.match(wiki_name + "-(\d{8})-pages-articles.xml.bz2", l.string)
+        if match:
+            wiki_date = match.group(1)
             dump_link = urlparse.urljoin(page, l['href'])
             break
 
@@ -72,11 +75,22 @@ for wiki_name, page in lang_pages:
         os.path.join(wiki_name, "{0}.xml".format(wiki_name)),
         os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name))))
 
-    os.system("{0} {1}/clean.py {2} {3}".format(
+    os.system("{0} {1}/clean2.py {2} {3}".format(
         sys.executable,
         wiki_name,
         os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name)),
-        os.path.join(wiki_name, "{0}_cleaned.xml".format(wiki_name))))
+        os.path.join(wiki_name, "{0}_cleaned2.xml".format(wiki_name))))
+
+    os.system("{0} clean3.py {1} {2}".format(
+        sys.executable,
+        os.path.join(wiki_name, "{0}_cleaned2.xml".format(wiki_name)),
+        os.path.join(wiki_name, "{0}_cleaned3.xml".format(wiki_name))))
+
+    print("Converting to GrAF...")
+    os.system("{0} to_graf.py {1} {2}".format(
+        sys.executable,
+        os.path.join(wiki_name, "{0}_cleaned3.xml".format(wiki_name)),
+        os.path.join(wiki_name, "{0}-{1}.hdr".format(wiki_name, wiki_date))))
 
     print
     
