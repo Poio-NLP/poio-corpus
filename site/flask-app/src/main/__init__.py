@@ -13,11 +13,11 @@ app = Flask(__name__)
 
 supported_languages =  [
     'bar',
-#    'ast',
-#    'arg',
-#    'nds',
-#    'gsw',
-#    'oci'
+    'ast',
+    'arg',
+    'nds',
+    'gsw',
+    'oci'
 ]
 
 ###################################### Pages

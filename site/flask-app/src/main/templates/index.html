@@ -3,11 +3,13 @@
 {% block main %}
 <div style="width:1000px; height:600px;">
 </div>
-<div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px; text-align:left;">
+<div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
+</div>
+<div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px;">
 
 	<h1>The Poio Corpus</h1>
 	<h2>Language Technologies for Lesser-Used Languages</h2>
-	<p>
+	<p style="text-align:left;">
 	  The Poio Corpus is a freely available collection of language ressources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="{{ url_for('about') }}">More...</a>
 	</p>
 
@@ -28,8 +30,6 @@
 	<!--End mc_embed_signup-->
 
 </div> <!-- teaser -->
-<div id="map" style="position:absolute; top:50px; left:0; width:1000px; height:600px;">
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -124,6 +124,11 @@
             tooltip.hide();
             tooltipLayer.draw();
             document.body.style.cursor = "default";
+          });
+
+
+          circle.on("click", function(){
+          	window.location = '{{ url_for('corpus') }}#' + key
           });
 
           shapesLayer.add(circle);
