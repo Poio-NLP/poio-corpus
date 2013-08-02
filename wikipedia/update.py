@@ -12,9 +12,9 @@ import sys
 import re
 import glob
 import codecs
-import xml.etree.ElementTree as ET
 import urllib2
 import urlparse
+import zipfile
 
 import requests
 from BeautifulSoup import BeautifulSoup
@@ -69,6 +69,7 @@ for wiki_name, page in lang_pages:
                 for line in infile:
                     outfile.write(line)
 
+    # Calling clean scripts
     print("Cleaning...")
     os.system("{0} clean.py {1} {2}".format(
         sys.executable,
@@ -92,7 +93,18 @@ for wiki_name, page in lang_pages:
         os.path.join(wiki_name, "{0}_cleaned3.xml".format(wiki_name)),
         os.path.join(wiki_name, "{0}-{1}.hdr".format(wiki_name, wiki_date))))
 
+    # Zipping
+    print("Zipping...")
+    files = [
+        os.path.join(wiki_name, "{0}-{1}.hdr".format(wiki_name, wiki_date)),
+        os.path.join(wiki_name, "{0}-{1}.txt".format(wiki_name, wiki_date)),
+        os.path.join(wiki_name, "{0}-{1}-doc.xml".format(wiki_name, wiki_date))
+    ]
+    myzip = zipfile.ZipFile(os.path.join(
+        '..', 'public', "{0}-{1}.zip".format(wiki_name, wiki_date)), 
+        'w', zipfile.ZIP_DEFLATED)
+    for f in files:
+        myzip.write(f, os.path.basename(f))
+    myzip.close()
+
     print
-    
-#tree = ET.parse('barwiki-cleaned.xml')
-#root = tree.getroot()

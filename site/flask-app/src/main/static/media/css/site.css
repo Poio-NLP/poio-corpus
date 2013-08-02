@@ -98,7 +98,10 @@ a:hover{color:inherit}
   margin-left:20px;
   margin-bottom:20px;
   width:600px;
-  text-align: justify;
+}
+
+#main p {
+  text-align: justify;  
 }
 
 #footer {

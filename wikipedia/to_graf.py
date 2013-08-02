@@ -25,8 +25,7 @@ def main(argv):
 
     converter = poioapi.io.graf.GrAFConverter(parser, writer)
     converter.parse()
-    converter.write(argv[2])
-
+    converter.write(argv[2])    
 
 if __name__ == "__main__":
     main(sys.argv)

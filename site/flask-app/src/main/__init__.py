@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import glob
 import json
 
 from flask import Flask, render_template, Markup
@@ -18,7 +20,6 @@ supported_languages =  [
 #    'oci'
 ]
 
-
 ###################################### Pages
 
 @app.route("/")
@@ -37,6 +38,23 @@ def index():
 @app.route("/about")
 def about():
     return render_template('about.html')
+
+@app.route("/corpus")
+def corpus():
+    corpus_dir = os.path.join(app.static_folder, 'corpus')
+    languages_data = {}
+    for iso in supported_languages:
+        corpus_files = []
+        for f in glob.glob(os.path.join(corpus_dir, "{0}*.zip".format(iso))):
+            corpus_files.append(os.path.basename(f))
+        language_info = get_info_for_iso(iso)
+        language_info['files'] = corpus_files
+        languages_data[iso] = language_info
+
+    iso_codes = sorted(supported_languages)
+    return render_template('corpus.html',
+        languages_data = languages_data,
+        languages = iso_codes)
 
 
 ##################################### Helpers

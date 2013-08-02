@@ -9,14 +9,19 @@ class MainTestCase(unittest.TestCase):
         self.app = main.app.test_client()
 
     def test_main(self):
-        """Test rendered page."""
+        """Test rendered index page."""
         rv = self.app.get('/')
         assert 'Poio Corpus' in rv.data
 
     def test_about(self):
-        """Test rendered page."""
+        """Test rendered about page."""
         rv = self.app.get('/about')
         assert 'Poio Corpus' in rv.data
+
+    def test_corpus(self):
+        """Test rendered corpus page."""
+        rv = self.app.get('/corpus')
+        assert 'Corpus files' in rv.data
 
     def test_get_info_for_iso(self):
         """Test query of geo information"""
