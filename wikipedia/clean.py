@@ -8,7 +8,8 @@
 # For license information, see LICENSE.TXT
 
 import sys
-import regex as re
+#import regex as re
+import re
 import codecs
 
 re_apostroph = re.compile("\"")
