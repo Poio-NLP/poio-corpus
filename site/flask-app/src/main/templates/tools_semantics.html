@@ -1,0 +1,22 @@
+{% extends "base.j2" %}
+
+{% block main %}
+
+<h1>
+    Semantic maps
+</h1>
+
+<p>
+    <form method="POST" action="{{ url_for('tools_semantics', iso=iso) }}">
+        <input type="text" name="term" value="{{ term if term != None }}"/>
+        <input type="submit" name="submit" value="Search Term" />
+    </form>
+</p>
+
+{% if term != None %}
+
+    <img src="{{ url_for('static', filename='plots/{0}'.format(map)) }}" />
+
+{% endif %}
+
+{% endblock %}
