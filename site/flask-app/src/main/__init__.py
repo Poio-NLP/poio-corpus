@@ -10,8 +10,9 @@ import rdflib
 import numpy as np
 import scipy.spatial
 import scipy.linalg
-import matplotlib.pyplot as plt
 import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 font = {'family' : 'normal',
         'weight' : 'normal',
