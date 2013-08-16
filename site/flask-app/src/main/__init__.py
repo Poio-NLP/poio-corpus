@@ -84,7 +84,7 @@ def tools_semantics_term(iso):
 @app.route("/tools/semantics/<iso>")
 @app.route("/tools/semantics/<iso>/<term>")
 def tools_semantics(iso, term=None):
-    map_file = None
+    map_file = ""
     if term != None:
         map_file = get_semantic_map(iso, term)
     return render_template('tools_semantics.html', iso=iso,
