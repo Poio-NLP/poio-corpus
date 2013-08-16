@@ -1,5 +1,10 @@
 {% extends "base.j2" %}
 
+{% block header %}
+<a href="{{ url_for('index_landing') }}">Start</a>
+<a href="{{ url_for('about') }}">About</a>
+{% endblock %}
+
 {% block main %}
 
 <h1>
@@ -14,12 +19,32 @@ The Poio Corpus is a freely available collection of language resources for the l
 <p>
 The Poio Corpus is a project of the Interdisciplinary Centre for Social and Language Documentation which is dedicated to the documentation and preservation of the linguistic and cultural heritage in Europe.
 </p>
+
+<h1>Coming soon...</h1>
 <p>
+    <!-- Begin MailChimp Signup Form -->
+    <link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+      #mc_embed_signup{clear:left; font:14px; margin-left:-10px; }
+      /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+         We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+    </style>
+    <div id="mc_embed_signup">
+    <form action="http://brickband.us5.list-manage.com/subscribe/post?u=0dbbf1894965f1d6e74b8728a&amp;id=9887fcd7f4" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+      <label for="mce-EMAIL">Sign up here to get the latest news</label>
+      <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+      <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+    </form>
+    </div>
+    <!--End mc_embed_signup-->
+</p>
+
+<!--<p>
     <ul>
         <li>Read more about the <a href="">ideas behind The Poio Corpus</a>.</li>
         <li>Read more about how to <a href="">use the GrAF corpus files in your own workflows</a>.</li>
         <li>Read more about how to <a href="">access the Web API of The Poio Corpus</a>.</li>
     </ul>
-</p>
+</p>-->
 
 {% endblock %}

@@ -36,6 +36,14 @@ supported_languages =  [
 ###################################### Pages
 
 @app.route("/")
+def index_landing():
+    languages_data = get_languages_data()
+    languages_json = json.dumps(languages_data)
+
+    return render_template('index_landing.html',
+        languages_json = Markup(languages_json))
+
+@app.route("/_index")
 def index():
     languages_data = get_languages_data()
     languages_json = json.dumps(languages_data)
