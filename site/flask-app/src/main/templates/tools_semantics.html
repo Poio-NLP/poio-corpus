@@ -13,10 +13,20 @@
     </form>
 </p>
 
-{% if map != "" %}
+{% if map %}
 
     <img src="{{ url_for('static', filename='plots/{0}'.format(map)) }}" />
 
 {% endif %}
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div id="flashes">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
 {% endblock %}

@@ -5,7 +5,8 @@ import json
 import pickle
 import operator
 
-from flask import Flask, render_template, Markup, request, url_for, redirect
+from flask import Flask, render_template, Markup, request, url_for, redirect, \
+    flash
 import rdflib
 import numpy as np
 import scipy.spatial
@@ -88,9 +89,13 @@ def tools_semantics(iso, term=None):
     map_file = ""
     if term != None:
         map_file = get_semantic_map(iso, term)
+        if not map_file:
+            flash('No result for search term "{0}".'.format(term))
+        else:
+            return render_template('tools_semantics.html', iso=iso,
+                map=map_file.encode('utf-8'), term=term)
     return render_template('tools_semantics.html', iso=iso,
-        map=map_file.encode('utf-8'), term=term)
-
+                map=None, term=term)
 
 ##################################### Helpers
 
@@ -115,6 +120,15 @@ def get_semantic_map(iso, term):
 
     sem_dir = os.path.join(app.static_folder, 'semantics')
 
+    indices_file = os.path.join(sem_dir, "{0}-indices.pickle".format(iso))
+    with open(indices_file, "rb") as f:
+        indices = pickle.load(f)
+        keys = [k 
+            for k, _ in sorted(indices.items(), key=operator.itemgetter(1))]
+    if not term in indices:
+        return None
+
+
     ut_file = os.path.join(sem_dir, "{0}-ut.bin".format(iso))
     with open(ut_file, "rb") as f:
         ut = np.load(f)
@@ -124,15 +138,11 @@ def get_semantic_map(iso, term):
     vt_file = os.path.join(sem_dir, "{0}-vt.bin".format(iso))
     with open(vt_file, "rb") as f:
         vt = np.load(f)
-    indices_file = os.path.join(sem_dir, "{0}-indices.pickle".format(iso))
-    with open(indices_file, "rb") as f:
-        indices = pickle.load(f)
-        keys = [k 
-            for k, _ in sorted(indices.items(), key=operator.itemgetter(1))]
 
     reconstructed_matrix = np.dot(ut.T, np.dot(np.diag(s), vt))
     tree = scipy.spatial.cKDTree(reconstructed_matrix)
     neighbours = tree.query(reconstructed_matrix[indices[term]], k=50)
+
     subset = reconstructed_matrix[neighbours[1]]
     words = [keys[i] for i in neighbours[1]]
     tempU, tempS, tempVt = scipy.linalg.svd(subset)
