@@ -1,0 +1,31 @@
+{% extends "base.j2" %}
+
+{% block main %}
+
+<h1>
+    Text prediction
+</h1>
+
+<p>
+    <textarea id="prediction" name="prediction" rows="10" cols="50"></textarea><br/>
+    <textarea id="prediction_result" name="prediction_result" rows="10" cols="50"></textarea>
+</p>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script type=text/javascript>
+$(function() {
+    $('textarea#prediction').bind('input propertychange', function() {
+        $.getJSON($SCRIPT_ROOT + '/_presage', {
+            text: $('textarea[name="prediction"]').val()
+        }, function(data) {
+            $("#prediction_result").val(data);
+        });
+        return false;
+    });
+});
+</script>
+
+{% endblock scripts %}

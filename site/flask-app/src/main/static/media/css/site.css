@@ -82,8 +82,11 @@ ul {
 }
 
 input {
-  border: 1px solid #777;
-  
+  border: 1px solid #777;  
+}
+
+textarea {
+  border: 1px solid #777;  
 }
 
 a {

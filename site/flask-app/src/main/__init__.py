@@ -4,9 +4,11 @@ import glob
 import json
 import pickle
 import operator
+import json
 
 from flask import Flask, render_template, Markup, request, url_for, redirect, \
-    flash
+    flash, Response
+
 import rdflib
 import numpy as np
 import scipy.spatial
@@ -14,6 +16,7 @@ import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import presage
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -34,6 +37,21 @@ supported_languages =  [
     'gsw',
     'oci'
 ]
+
+class DemoCallback(presage.PresageCallback):
+    def __init__(self):
+        presage.PresageCallback.__init__(self)
+        self.buffer = ''
+
+    def get_past_stream(self):
+        return self.buffer
+    
+    def get_future_stream(self):
+        return ''
+
+# Presage owns callback, so we create it and disown it
+callback = DemoCallback().__disown__()
+prsg = presage.Presage(callback, os.path.join(app.static_folder, 'presage', 'bar.xml'))
 
 ###################################### Pages
 
@@ -96,6 +114,17 @@ def tools_semantics(iso, term=None):
                 map=map_file.encode('utf-8'), term=term)
     return render_template('tools_semantics.html', iso=iso,
                 map=None, term=term)
+
+@app.route("/tools/prediction/<iso>")
+def tools_prediction(iso):
+    return render_template('tools_prediction.html', iso=iso)
+
+@app.route("/_presage")
+def presage():
+    string_buffer = request.args.get('text', '', type=str)
+    callback.buffer = string_buffer
+    prediction = list(prsg.predict())
+    return Response(json.dumps(prediction), mimetype='application/json')
 
 ##################################### Helpers
 
