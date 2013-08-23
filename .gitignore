@@ -13,10 +13,6 @@ site/flask-app/eggs/
 site/flask-app/parts/
 site/flask-app/src/main.egg-info/
 site/flask-app/var/
-wikipedia/barwiki/barwiki-20130813-doc.xml
-wikipedia/barwiki/barwiki-20130813.hdr
-wikipedia/barwiki/barwiki-20130813.txt
-wikipedia/barwiki/barwiki.xml
-wikipedia/barwiki/barwiki_cleaned1.xml
-wikipedia/barwiki/barwiki_cleaned2.xml
-wikipedia/barwiki/barwiki_cleaned3.xml
+wikipedia/*/*.xml
+wikipedia/*/*.hdr
+wikipedia/*/*.txt

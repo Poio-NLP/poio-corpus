@@ -61,7 +61,7 @@ for wiki_name, page in lang_pages:
         wiki_name))
 
     # Concatenate output files
-    filenames = glob.glob("{0}/extracted/*.raw".format(wiki_name))
+    filenames = glob.glob(os.path.join(wiki_name, "extracted", "*.raw")
     with codecs.open(os.path.join(
             wiki_name, "{0}.xml".format(wiki_name)), 'w', 'utf-8') as outfile:
         for fname in filenames:
