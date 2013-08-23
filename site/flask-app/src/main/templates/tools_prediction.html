@@ -1,5 +1,9 @@
 {% extends "base.j2" %}
 
+{% block custom_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='media/css/prediction.css') }}">
+{% endblock custom_css %}
+
 {% block main %}
 
 <h1>
@@ -8,7 +12,14 @@
 
 <p>
     <textarea id="prediction" name="prediction" rows="10" cols="50"></textarea><br/>
-    <textarea id="prediction_result" name="prediction_result" rows="10" cols="50"></textarea>
+    <div id="predictor">
+        <span class="predicted-word"><span class="shortcut">F1</span><span id="predict-0"></span></span>
+        <span class="predicted-word"><span class="shortcut">F2</span><span id="predict-1"></span></span>
+        <span class="predicted-word"><span class="shortcut">F3</span><span id="predict-2"></span></span>
+        <span class="predicted-word"><span class="shortcut">F4</span><span id="predict-3"></span></span>
+        <span class="predicted-word"><span class="shortcut">F5</span><span id="predict-4"></span></span>
+        <span class="predicted-word"><span class="shortcut">F6</span><span id="predict-5"></span></span>
+    </div>
 </p>
 
 {% endblock %}
@@ -21,9 +32,31 @@ $(function() {
         $.getJSON($SCRIPT_ROOT + '/_presage', {
             text: $('textarea[name="prediction"]').val()
         }, function(data) {
-            $("#prediction_result").val(data);
+            var length = data.length, element = null;
+            for (var i = 0; i < length; i++) {
+                element = data[i];
+                $("#predict-" + i).text(element)
+            }
         });
         return false;
+    });
+    $('textarea#prediction').keypress(function(event) {
+        if ( ( event.keyCode == 112 ) ||
+                ( event.keyCode == 113 ) ||
+                ( event.keyCode == 114 ) ||
+                ( event.keyCode == 115 ) ||
+                ( event.keyCode == 116 ) ||
+                ( event.keyCode == 117 ) ) { //112-123
+            event.preventDefault();
+            i = event.keyCode - 112;
+            text = $("#predict-" + i).text();
+            prevText = $('textarea[name="prediction"]').val();
+            newText = prevText.substr(0, prevText.lastIndexOf(" "));
+            newText += " ";
+            newText += text;
+            newText += " ";
+            $('textarea[name="prediction"]').val(newText)
+        }        
     });
 });
 </script>
