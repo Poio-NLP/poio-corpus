@@ -101,7 +101,7 @@ for wiki_name, page in lang_pages:
         os.path.join(wiki_name, "{0}-{1}-doc.xml".format(wiki_name, wiki_date))
     ]
     myzip = zipfile.ZipFile(os.path.join(
-        '..', 'build', "{0}-{1}.zip".format(wiki_name, wiki_date)), 
+        '..', 'build', 'corpus', "{0}-{1}.zip".format(wiki_name, wiki_date)), 
         'w', zipfile.ZIP_DEFLATED)
     for f in files:
         myzip.write(f, os.path.basename(f))
