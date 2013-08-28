@@ -13,11 +13,6 @@ import re
 import poioapi.io.wikipedia_extractor
 import poioapi.annotationgraph
 
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
-
 def main(argv):
 
     parser = poioapi.io.wikipedia_extractor.Parser(argv[1])
