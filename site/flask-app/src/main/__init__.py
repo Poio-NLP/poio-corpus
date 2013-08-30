@@ -16,7 +16,7 @@ import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import presage
+#import presage
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -36,20 +36,20 @@ with open(languages_data_file, "rb") as f:
     languages_data = pickle.load(f)
 
 
-class DemoCallback(presage.PresageCallback):
-    def __init__(self):
-        presage.PresageCallback.__init__(self)
-        self.buffer = ''
+# class DemoCallback(presage.PresageCallback):
+#     def __init__(self):
+#         presage.PresageCallback.__init__(self)
+#         self.buffer = ''
 
-    def get_past_stream(self):
-        return self.buffer
+#     def get_past_stream(self):
+#         return self.buffer
     
-    def get_future_stream(self):
-        return ''
+#     def get_future_stream(self):
+#         return ''
 
-# Presage owns callback, so we create it and disown it
-callback = DemoCallback().__disown__()
-prsg = presage.Presage(callback, os.path.join(app.static_folder, 'presage', 'bar.xml'))
+# # Presage owns callback, so we create it and disown it
+# callback = DemoCallback().__disown__()
+# prsg = presage.Presage(callback, os.path.join(app.static_folder, 'presage', 'bar.xml'))
 
 ###################################### Pages
 

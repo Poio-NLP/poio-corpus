@@ -16,4 +16,3 @@ site/flask-app/var/
 wikipedia/*/*.xml
 wikipedia/*/*.hdr
 wikipedia/*/*.txt
-build/
