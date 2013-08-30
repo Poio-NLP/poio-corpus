@@ -10,5 +10,5 @@
 import os
 import sys
 
-os.system("{0} s3cmd.py sync build s3://poiocorpus --acl-public --delete-removed".format(
+os.system("{0} s3cmd.py sync build/ s3://poiocorpus --acl-public --exclude=README.rst".format(
     sys.executable))
