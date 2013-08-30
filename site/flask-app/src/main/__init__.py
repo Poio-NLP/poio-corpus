@@ -16,7 +16,7 @@ import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-#import presage
+import presage
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -113,8 +113,8 @@ def tools_semantics(iso, term=None):
 def tools_prediction(iso):
     return render_template('tools_prediction.html', iso=iso)
 
-@app.route("/_presage")
-def presage():
+@app.route("/_prediction")
+def prediction():
     iso = request.args.get('iso', '', type=str)
     # Presage owns callback, so we create it and disown it
     callback = DemoCallback().__disown__()

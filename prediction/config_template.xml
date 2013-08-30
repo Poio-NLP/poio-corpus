@@ -5,7 +5,7 @@
         <!-- PREDICTORS
           Space separated list of predictors to use to generate predictions
         -->
-        <PREDICTORS>SmoothedNgramPredictor RecencyPredictor DictionaryPredictor</PREDICTORS>
+        <PREDICTORS>SmoothedNgramPredictor RecencyPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
 	<LOGGER>ERROR</LOGGER>
@@ -77,11 +77,11 @@
                 <N_0>1</N_0>
                 <CUTOFF_THRESHOLD>20</CUTOFF_THRESHOLD>
     	</RecencyPredictor>
-    	<DictionaryPredictor>
-    	    <DICTIONARY>static/prediction/{0}_dict.txt</DICTIONARY>
+    	<!--<DictionaryPredictor>
+    	    <DICTIONARY>static/prediction/{0}_dict.txt</DICTIONARY>-->
                 <!-- fixed probability assigned to prediction -->
-                <PROBABILITY>0.000001</PROBABILITY>
-    	</DictionaryPredictor>
+                <!--<PROBABILITY>0.000001</PROBABILITY>
+    	</DictionaryPredictor>-->
         <!--<AbbreviationExpansionPredictor>
             <LOGGER>ERROR</LOGGER>
             <ABBREVIATIONS>/usr/share/presage/abbreviations_en.txt</ABBREVIATIONS>

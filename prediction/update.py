@@ -101,7 +101,7 @@ def main(argv):
 def _words_for_document(doc, ignorechars):
     re_ignore_chars = re.compile(u"[{0}]".format(ignorechars))
     words = doc.split()
-    words2 = list()
+    words2 = set()
 
     for w in words:
         w = re_ignore_chars.sub("", w)
@@ -109,7 +109,7 @@ def _words_for_document(doc, ignorechars):
         if w == "":
             continue
 
-        words2.append(w)
+        words2.add(w)
 
     return words2
 
