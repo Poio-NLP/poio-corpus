@@ -5,7 +5,7 @@
         <!-- PREDICTORS
           Space separated list of predictors to use to generate predictions
         -->
-        <PREDICTORS>AbbreviationExpansionPredictor SmoothedNgramPredictor RecencyPredictor</PREDICTORS>
+        <PREDICTORS>SmoothedNgramPredictor RecencyPredictor DictionaryPredictor</PREDICTORS>
     </PredictorRegistry>
     <ContextTracker>
 	<LOGGER>ERROR</LOGGER>
@@ -63,26 +63,26 @@
     <Predictors>
         <SmoothedNgramPredictor>
             <LOGGER>ERROR</LOGGER>
-            <DBFILENAME>/home/pbouda/Projects/git-github/poio-corpus/build/bar.sqlite</DBFILENAME>
-            <!-- \delta_0, \delta_1, ..., \delta_{n-1} -->
+            <DBFILENAME>static/prediction/{0}.sqlite</DBFILENAME>
+            <!-- \delta_0, \delta_1, ..., \delta_(n-1) -->
             <DELTAS>0.01 0.1 0.89</DELTAS>
             <LEARN>false</LEARN>
             <DatabaseConnector>
                 <LOGGER>ERROR</LOGGER>
             </DatabaseConnector>
         </SmoothedNgramPredictor>
-	<RecencyPredictor>
-            <LOGGER>ERROR</LOGGER>
-            <LAMBDA>1</LAMBDA>
-            <N_0>1</N_0>
-            <CUTOFF_THRESHOLD>20</CUTOFF_THRESHOLD>
-	</RecencyPredictor>
-	<!--<DictionaryPredictor>
-	    <DICTIONARY>/usr/share/dict/words</DICTIONARY>-->
-            <!-- fixed probability assigned to prediction -->
-<!--            <PROBABILITY>0.000001</PROBABILITY>
-	</DictionaryPredictor>
-        <AbbreviationExpansionPredictor>
+    	<RecencyPredictor>
+                <LOGGER>ERROR</LOGGER>
+                <LAMBDA>1</LAMBDA>
+                <N_0>1</N_0>
+                <CUTOFF_THRESHOLD>20</CUTOFF_THRESHOLD>
+    	</RecencyPredictor>
+    	<DictionaryPredictor>
+    	    <DICTIONARY>static/prediction/{0}_dict.txt</DICTIONARY>
+                <!-- fixed probability assigned to prediction -->
+                <PROBABILITY>0.000001</PROBABILITY>
+    	</DictionaryPredictor>
+        <!--<AbbreviationExpansionPredictor>
             <LOGGER>ERROR</LOGGER>
             <ABBREVIATIONS>/usr/share/presage/abbreviations_en.txt</ABBREVIATIONS>
         </AbbreviationExpansionPredictor>
@@ -91,11 +91,11 @@
             <MEMORY>/usr/share/presage/dejavu_memory_en.txt</MEMORY>
             <TRIGGER>3</TRIGGER>
         </DejavuPredictor>
-	<ARPAPredictor>
-	  <LOGGER>ERROR</LOGGER>
-	  <ARPAFILENAME>/usr/share/presage/arpa_en.arpa</ARPAFILENAME>
-	  <VOCABFILENAME>/usr/share/presage/arpa_en.vocab</VOCABFILENAME>
-	  <TIMEOUT>100</TIMEOUT>
-	</ARPAPredictor>-->
+    	<ARPAPredictor>
+    	  <LOGGER>ERROR</LOGGER>
+    	  <ARPAFILENAME>/usr/share/presage/arpa_en.arpa</ARPAFILENAME>
+    	  <VOCABFILENAME>/usr/share/presage/arpa_en.vocab</VOCABFILENAME>
+    	  <TIMEOUT>100</TIMEOUT>
+    	</ARPAPredictor>-->
     </Predictors>
 </Presage>

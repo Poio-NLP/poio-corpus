@@ -36,20 +36,16 @@ with open(languages_data_file, "rb") as f:
     languages_data = pickle.load(f)
 
 
-# class DemoCallback(presage.PresageCallback):
-#     def __init__(self):
-#         presage.PresageCallback.__init__(self)
-#         self.buffer = ''
+class DemoCallback(presage.PresageCallback):
+    def __init__(self):
+        presage.PresageCallback.__init__(self)
+        self.buffer = ''
 
-#     def get_past_stream(self):
-#         return self.buffer
+    def get_past_stream(self):
+        return self.buffer
     
-#     def get_future_stream(self):
-#         return ''
-
-# # Presage owns callback, so we create it and disown it
-# callback = DemoCallback().__disown__()
-# prsg = presage.Presage(callback, os.path.join(app.static_folder, 'presage', 'bar.xml'))
+    def get_future_stream(self):
+        return ''
 
 ###################################### Pages
 
@@ -119,6 +115,11 @@ def tools_prediction(iso):
 
 @app.route("/_presage")
 def presage():
+    iso = request.args.get('iso', '', type=str)
+    # Presage owns callback, so we create it and disown it
+    callback = DemoCallback().__disown__()
+    prsg = presage.Presage(callback, os.path.join(app.static_folder, 'prediction', "{0}.xml".format(iso)))
+
     string_buffer = request.args.get('text', '', type=str)
     callback.buffer = string_buffer
     prediction = list(prsg.predict())

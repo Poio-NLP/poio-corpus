@@ -30,7 +30,8 @@
 $(function() {
     $('textarea#prediction').bind('input propertychange', function() {
         $.getJSON($SCRIPT_ROOT + '/_presage', {
-            text: $('textarea[name="prediction"]').val()
+            text: $('textarea[name="prediction"]').val(),
+            iso : '{{ iso }}'
         }, function(data) {
             var length = data.length, element = null;
             for (var i = 0; i < length; i++) {
