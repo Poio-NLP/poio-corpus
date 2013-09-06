@@ -1,0 +1,12 @@
+lxml
+requests
+beautifulsoup
+poio-api
+graf-python
+rdflib
+config
+numpy
+scipy
+presage
+sparsesvd
+s3cmd

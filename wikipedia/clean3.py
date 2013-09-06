@@ -9,6 +9,7 @@
 
 import sys
 import regex as re 
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
