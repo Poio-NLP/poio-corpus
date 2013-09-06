@@ -8,7 +8,7 @@
 # For license information, see LICENSE.TXT
 
 import sys
-import re
+import regex as re
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -18,7 +18,7 @@ def main(argv):
     tree = ET.ElementTree(file=argv[1])
     root = tree.getroot()
 
-    re_special_title = re.compile("\w+:\w")
+    re_special_title = re.compile("\w+:\w", re.UNICODE)
 
     remove_list = list()
 
@@ -31,8 +31,7 @@ def main(argv):
 
     for doc in remove_list:
         root.remove(doc)
-    tree.write(argv[2])
-
+    tree.write(argv[2], encoding="UTF-8")
 
 if __name__ == "__main__":
     main(sys.argv)
