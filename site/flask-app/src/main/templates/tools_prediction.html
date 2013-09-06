@@ -28,6 +28,7 @@
 
 <script type=text/javascript>
 $(function() {
+
     $('textarea#prediction').bind('input propertychange', function() {
         $.getJSON($SCRIPT_ROOT + '/_prediction', {
             text: $('textarea[name="prediction"]').val(),
@@ -41,6 +42,7 @@ $(function() {
         });
         return false;
     });
+
     $('textarea#prediction').keypress(function(event) {
         if ( ( event.keyCode == 112 ) ||
                 ( event.keyCode == 113 ) ||

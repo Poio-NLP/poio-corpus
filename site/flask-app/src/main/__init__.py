@@ -120,7 +120,7 @@ def prediction():
     callback = DemoCallback().__disown__()
     prsg = presage.Presage(callback, os.path.join(app.static_folder, 'prediction', "{0}.xml".format(iso)))
 
-    string_buffer = request.args.get('text', '', type=str)
+    string_buffer = request.args.get('text', '').encode("utf-8")
     callback.buffer = string_buffer
     prediction = list(prsg.predict())
     return Response(json.dumps(prediction), mimetype='application/json')
