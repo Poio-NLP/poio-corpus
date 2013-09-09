@@ -11,7 +11,7 @@
 </h1>
 
 <p>
-    <textarea id="prediction" name="prediction" rows="10" cols="50"></textarea><br/>
+    <textarea id="prediction" name="prediction" rows="10" cols="50" onkeydown="javascript:return captureKeyCode(event);"></textarea><br/>
     <div id="predictor">
         <span class="predicted-word"><span class="shortcut">F1</span><span id="predict-0"></span></span>
         <span class="predicted-word"><span class="shortcut">F2</span><span id="predict-1"></span></span>
@@ -25,6 +25,32 @@
 {% endblock %}
 
 {% block scripts %}
+
+<script language="javascript">
+function captureKeyCode(evt)
+{
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (    ( charCode == 112 ) ||
+            ( charCode == 113 ) ||
+            ( charCode == 114 ) ||
+            ( charCode == 115 ) ||
+            ( charCode == 116 ) ||
+            ( charCode == 117 ) ) {
+        i = charCode - 112;
+        text = $("#predict-" + i).text();
+        prevText = $('textarea[name="prediction"]').val();
+        newText = prevText.substr(0, prevText.lastIndexOf(" "));
+        newText += " ";
+        newText += text;
+        newText += " ";
+        $('textarea[name="prediction"]').val(newText);
+        return false;
+    }
+    else return true;
+}
+</script>
+
+
 
 <script type=text/javascript>
 $(function() {
@@ -43,9 +69,9 @@ $(function() {
         return false;
     });
 
-    $('textarea#prediction').keypress(function(event) {
-        if ( ( event.keyCode == 112 ) ||
-                ( event.keyCode == 113 ) ||
+    /*$('textarea#prediction').keypress(function(event) {
+        if ( ( (event.which) ? event.which : event.keyCode == 112 ) ||
+                ( (event.which) ? event.which : event.keyCode == 113 ) ||
                 ( event.keyCode == 114 ) ||
                 ( event.keyCode == 115 ) ||
                 ( event.keyCode == 116 ) ||
@@ -60,7 +86,7 @@ $(function() {
             newText += " ";
             $('textarea[name="prediction"]').val(newText)
         }        
-    });
+    });*/
 });
 </script>
 
