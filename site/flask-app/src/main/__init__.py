@@ -5,6 +5,7 @@ import json
 import pickle
 import operator
 import json
+import codecs
 
 from flask import Flask, render_template, Markup, request, url_for, redirect, \
     flash, Response
@@ -88,7 +89,7 @@ def tools():
 def tools_semantics_term(iso):
     term = None
     if "term" in request.form:
-        term = request.form["term"].decode('utf-8')
+        term = request.form["term"]
         term = "".join(
             [c for c in term if c.isalpha() or c.isdigit() or c==' '])\
             .rstrip().lower()
@@ -98,14 +99,17 @@ def tools_semantics_term(iso):
 @app.route("/tools/semantics/<iso>")
 @app.route("/tools/semantics/<iso>/<term>")
 def tools_semantics(iso, term=None):
-    map_file = ""
+    #map_file = ""
     if term != None:
-        map_file = get_semantic_map(iso, term)
-        if not map_file:
-            flash('No result for search term "{0}".'.format(term))
-        else:
-            return render_template('tools_semantics.html', iso=iso,
-                map=map_file.encode('utf-8'), term=term)
+        graphdata = get_semantic_map(iso, term)
+        # if not map_file:
+        #     flash('No result for search term "{0}".'.format(term))
+        # else:
+        #     return render_template('tools_semantics.html', iso=iso,
+        #         map=map_file.encode('utf-8'), term=term)
+        graphdata_json = json.dumps(graphdata)
+        return render_template('tools_semantics.html', iso=iso,
+                map=None, term=term, graphdata_json = Markup(graphdata_json))
     return render_template('tools_semantics.html', iso=iso,
                 map=None, term=term)
 
@@ -129,10 +133,14 @@ def prediction():
 
 def get_semantic_map(iso, term):
     plot_dir = os.path.join(app.static_folder, 'plots')
-    plot_filename = u"{0}-{1}.png".format(iso, term)
+    plot_filename = u"{0}-{1}.pickle".format(iso, term)
     plot_filepath = os.path.join(plot_dir, plot_filename)
+
     if os.path.exists(plot_filepath):
-        return plot_filename
+        inputfile = open(plot_filepath, 'rb')
+        graphdata = pickle.load(inputfile)
+        inputfile.close()
+        return graphdata
 
     sem_dir = os.path.join(app.static_folder, 'semantics')
 
@@ -163,17 +171,30 @@ def get_semantic_map(iso, term):
     words = [keys[i] for i in neighbours[1]]
     tempU, tempS, tempVt = scipy.linalg.svd(subset)
 
-    coords = tempU[:,1:3]
-    plt.clf()
-    plt.figure(1, figsize=(10,6))
-    plt.plot(tempU[:,1], tempU[:,2], marker="o", linestyle="None")
-    for label, x, y in zip(words, tempU[:,1], tempU[:,2]):
-        plt.annotate(
-            label, 
-            xy = (x, y), xytext = (-5, 5),
-            textcoords = 'offset points', ha = 'right', va = 'bottom',
-            bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5))
-    #plt.show()
-    plt.savefig(plot_filepath)
-    return plot_filename
+    graphdata = []
+    count = 0
+    for element in tempU[:,1]:
+        graphdata.append([words[count], element, tempU[:,2][count]])
+        count += 1
 
+    outputfile = open(plot_filepath, 'wb')
+    pickle.dump(graphdata, outputfile)
+    outputfile.close()
+    return graphdata
+
+    # graphdata_json = json.dumps(graphdata)
+    # render_template('tools_semantics.html',
+    #     graphdata_json = Markup(graphdata_json))
+
+    # plt.clf()
+    # plt.figure(1, figsize=(10,6))
+    # plt.plot(tempU[:,1], tempU[:,2], marker="o", linestyle="None")
+    # for label, x, y in zip(words, tempU[:,1], tempU[:,2]):
+    #     plt.annotate(
+    #         label, 
+    #         xy = (x, y), xytext = (-5, 5),
+    #         textcoords = 'offset points', ha = 'right', va = 'bottom',
+    #         bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5))
+    # #plt.show()
+    # plt.savefig(plot_filepath)
+    # return plot_filename

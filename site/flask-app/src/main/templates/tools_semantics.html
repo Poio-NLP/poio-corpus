@@ -1,32 +1,174 @@
 {% extends "base.j2" %}
 
+
 {% block main %}
 
-<h1>
-    Semantic maps
-</h1>
+    <h1>
+        Semantic maps
+    </h1>
 
-<p>
-    <form method="POST" action="{{ url_for('tools_semantics', iso=iso) }}">
-        <input type="text" name="term" value="{{ term if term != None }}"/>
-        <input type="submit" name="submit" value="Search Term" />
-    </form>
-</p>
+    <p>
+        <form method="POST" action="{{ url_for('tools_semantics', iso=iso) }}">
+            <input type="text" name="term" value="{{ term if term != None }}"/>
+            <input type="submit" name="submit" value="Search Term" />
+        </form>
+    </p>
 
-{% if map %}
+    {% if map %}
 
-    <img src="{{ url_for('static', filename='plots/{0}'.format(map)) }}" />
+        <!-- <img src="{{ url_for('static', filename='plots/{0}'.format(map)) }}" /> -->
 
-{% endif %}
-
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div id="flashes">
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-        </div>
     {% endif %}
-{% endwith %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div id="flashes">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div id="semantic_map"></div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
+
+    <script>
+        // Enable moveToFront function
+        d3.selection.prototype.moveToFront = function() {
+            return this.each(function(){
+                this.parentNode.appendChild(this);
+                });
+            };
+
+        function mouseoverEvent() {
+            d3.select(this.parentNode).moveToFront();      
+            d3.select(this.parentNode).select("rect")
+                .style("fill-opacity", "1");
+            d3.select(this.parentNode).select("circle")
+                .moveToFront()
+                .attr("r", 7)
+                .style("fill", "3366CC");
+        }
+
+        function mouseoutEvent() {
+            d3.select(this.parentNode).select("circle")
+                .attr("r", 5.3)
+                .style("fill", "steelblue");
+            d3.select(this.parentNode).select("rect")
+                .style("fill-opacity", ".25");
+        }
+
+        var data = JSON.parse('{{ graphdata_json }}');
+
+        var margin = {top: 40, right: 40, bottom: 40, left: 40},
+            width = 960,
+            height = 500;
+
+        var x = pad(d3.scale.linear()
+            .domain([-0.4, 0.4])
+            .range([0, width - margin.left - margin.right]), 40);
+
+        var y = pad(d3.scale.linear()
+            .domain([-0.4, 0.4])
+            .range([height - margin.top - margin.bottom, 0]), 40);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            .tickPadding(8);
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .tickPadding(8);
+
+        var svg = d3.select("#semantic_map").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "dot chart")
+            .append("g")
+                .attr("class", "ggroup")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+        var node = svg.selectAll("circle.node")
+            .data(data)
+            .enter().append("g");
+
+        node.append("rect")
+            .attr("x", function(d) { return x(d[1]); })
+            .attr("y", function(d) { return y(d[2]); })
+            .attr("width", function(d) { return (d[0].length * 8) + 9; }) // 8 is charwidth & 9 accomodates for margins
+            .attr("height", 20)
+            .style("fill", "#ccc")
+            .style("fill-opacity", ".25")
+            .style("stroke", "#666")
+            .style("stroke-width", "1.2px")
+            .on("mouseover", mouseoverEvent)
+            .on("mouseout", mouseoutEvent);
+
+        node.append("text")
+            .attr("x", function(d) { return x(d[1]) + 4; })
+            .attr("y", function(d) { return y(d[2]) + 15; })
+            .style("font", "400 14px Droid Sans Mono") // Monospace font to calculate text width
+            .style("fill", "#666")
+            .style("cursor", "default")
+            .text(function(d) { return d[0]; })
+            .on("mouseover", mouseoverEvent)
+            .on("mouseout", mouseoutEvent);
+
+        node.append("circle")
+            .attr("class", "dot")
+            .attr("id", function(d) { return d[0]; })
+            .attr("cx", function(d) { return x(d[1]); })
+            .attr("cy", function(d) { return y(d[2]); })
+            .attr("r", 5.2)
+            .style("stroke", "3366CC")
+            .style("stroke-width", "1.5px")
+            .on("mouseover", mouseoverEvent)
+            .on("mouseout", mouseoutEvent);
+
+        function pad(scale, k) {
+          var range = scale.range();
+          if (range[0] > range[1]) k *= -1;
+          return scale.domain([range[0] - k, range[1] + k].map(scale.invert)).nice();
+        }
+
+        /*function update() {
+          svg.selectAll(".dot").data(data).enter().append("circle")
+            .attr("class", "dot")
+            .attr("cx", function(d) { return x(d[1]); })
+            .attr("cy", function(d) { return y(d[2]); })
+            .attr("r", 12);
+        }*/
+    </script>
+
+{% endblock %}
+
+
+{% block custom_css %}
+
+    <style>
+        circle.dot {
+          fill: steelblue;
+        }
+
+        .axis text {
+          font: 10px sans-serif;
+        }
+
+        .axis path, .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
+    </style>
 
 {% endblock %}
