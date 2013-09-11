@@ -50,7 +50,7 @@ class DemoCallback(presage.PresageCallback):
 
 ###################################### Pages
 
-@app.route("/")
+@app.route("/_index")
 def index_landing():
     #languages_data = get_languages_data()
     languages_json = json.dumps(languages_data)
@@ -58,7 +58,7 @@ def index_landing():
     return render_template('index_landing.html',
         languages_json = Markup(languages_json))
 
-@app.route("/_index")
+@app.route("/")
 def index():
     #languages_data = get_languages_data()
     languages_json = json.dumps(languages_data)
@@ -128,6 +128,11 @@ def prediction():
     callback.buffer = string_buffer
     prediction = list(prsg.predict())
     return Response(json.dumps(prediction), mimetype='application/json')
+
+@app.route("/documentation")
+def documentation():
+    return render_template('documentation.html')
+
 
 ##################################### Helpers
 

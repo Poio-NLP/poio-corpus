@@ -1,9 +1,5 @@
 {% extends "base.j2" %}
 
-{% block header %}
-<a href="{{ url_for('index_landing') }}">Start</a>
-<a href="{{ url_for('about') }}">About</a>
-{% endblock %}
 
 {% block main %}
 
@@ -14,13 +10,12 @@
     Natural Language Processing for the Lesser-Used Languages in Europe
 </h2>
 <p>
-The Poio Corpus is a freely available collection of language resources for the lesser-used languages in Europe. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. Each corpus is available for download as GrAF files (ISO 24612) for which a Python and a Java library are available to allow unified access. The goal of this project is to make the development of NLP tools for the lesser-used languages easier, or even possible in some cases. Our website features two example applications for all languages: lexical graphs to visualize semantic similarities based on the idea of <a href="http://www.puttypeg.net/papers/lexical-graphs.pdf">Widdows and Dorow (2002)</a> and an HTML text editor with statistical text prediction and automated suggestions from dictionaries. All the functionality of this website is also available via a Web API.
+The Poio Corpus is a freely available collection of language resources for the lesser-used languages. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. Each corpus is available for download as GrAF files (ISO 24612) for which a Python and a Java library are available to allow unified access. The goal of this project is to make the development of NLP tools for the lesser-used languages easier, or even possible in some cases. Our website features two example applications for all languages: lexical graphs to visualize semantic similarities based on the idea of <a href="http://www.puttypeg.net/papers/lexical-graphs.pdf">Widdows and Dorow (2002)</a> and an text editor with statistical text prediction. All the functionality of this website is also available via a Web API.
 </p>
 <p>
 The Poio Corpus is a project of the Interdisciplinary Centre for Social and Language Documentation which is dedicated to the documentation and preservation of the linguistic and cultural heritage in Europe.
 </p>
 
-<h1>Coming soon...</h1>
 <p>
     <!-- Begin MailChimp Signup Form -->
     <link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
