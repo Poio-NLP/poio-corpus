@@ -37,7 +37,8 @@
 
 {% block scripts %}
 
-    <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>-->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
     <script>
         // Enable moveToFront function
@@ -53,59 +54,72 @@
                 .style("fill-opacity", "1");
             d3.select(this.parentNode).select("circle")
                 .moveToFront()
-                .attr("r", 7)
-                .style("fill", "3366CC");
+                .attr("r", 7.5)
+                .style("fill", function(d) {
+                    if (d[0] == "{{term}}") return "green";
+                    else return "3366CC";
+                });
         }
 
         function mouseoutEvent() {
             d3.select(this.parentNode).select("circle")
-                .attr("r", 5.3)
-                .style("fill", "steelblue");
+                .attr("r", 5.5)
+                .style("fill", function(d) {
+                    if (d[0] == "{{term}}") return "lightgreen";
+                    else return "steelblue";
+                })
             d3.select(this.parentNode).select("rect")
                 .style("fill-opacity", ".25");
         }
 
+        function zoom() {
+            node.attr("transform", transform);
+        }
+
+        function transform(d) {
+            //alert((x(d[1]) - width/2) + ", " + (y(d[2]) - height/2))
+            return "translate(" + (x(d[1]) - width/2) + "," + (y(d[2]) - height/2) + ")";
+        }
+
         var data = JSON.parse('{{ graphdata_json }}');
 
-        var margin = {top: 40, right: 40, bottom: 40, left: 40},
+        var margin = {top: 0, right: 0, bottom: 0, left: 0},
             width = 960,
             height = 500;
 
-        var x = pad(d3.scale.linear()
+        var x = d3.scale.linear()
+            .domain([-0.4, 0.4]) // TODO: get minimum and maximum from data
+            .range([0, width]);
+
+        var y = d3.scale.linear()
             .domain([-0.4, 0.4])
-            .range([0, width - margin.left - margin.right]), 40);
+            .range([height, 0]);
 
-        var y = pad(d3.scale.linear()
-            .domain([-0.4, 0.4])
-            .range([height - margin.top - margin.bottom, 0]), 40);
-
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
-            .tickPadding(8);
-
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left")
-            .tickPadding(8);
-
+        var zoomvar = d3.behavior.zoom()
+                .x(x).y(y)
+                .center([width / 2, height / 2])
+                .scale(1)
+                .scaleExtent([0.05, 10])
+                .on("zoom", zoom);
+                
         var svg = d3.select("#semantic_map").append("svg")
             .attr("width", width)
             .attr("height", height)
             .attr("class", "dot chart")
+            .call(zoomvar)
             .append("g")
-                .attr("class", "ggroup")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+            .attr("class", "ggroup");
 
         var node = svg.selectAll("circle.node")
             .data(data)
-            .enter().append("g");
+            .enter()
+            .append("g")
+            .attr("transform", transform);
 
         node.append("rect")
             .attr("x", function(d) { return x(d[1]); })
             .attr("y", function(d) { return y(d[2]); })
-            .attr("width", function(d) { return (d[0].length * 8) + 9; }) // 8 is charwidth & 9 accomodates for margins
+            .attr("width", function(d) { return (d[0].length * 8) + 10; }) // 8 is charwidth & 10 accomodates for margins
             .attr("height", 20)
             .style("fill", "#ccc")
             .style("fill-opacity", ".25")
@@ -115,7 +129,7 @@
             .on("mouseout", mouseoutEvent);
 
         node.append("text")
-            .attr("x", function(d) { return x(d[1]) + 4; })
+            .attr("x", function(d) { return x(d[1]) + 5; })
             .attr("y", function(d) { return y(d[2]) + 15; })
             .style("font", "400 14px Droid Sans Mono") // Monospace font to calculate text width
             .style("fill", "#666")
@@ -124,13 +138,20 @@
             .on("mouseover", mouseoverEvent)
             .on("mouseout", mouseoutEvent);
 
-        node.append("circle")
+        var bluecircles = node.append("circle")
             .attr("class", "dot")
             .attr("id", function(d) { return d[0]; })
             .attr("cx", function(d) { return x(d[1]); })
             .attr("cy", function(d) { return y(d[2]); })
-            .attr("r", 5.2)
-            .style("stroke", "3366CC")
+            .attr("r", 5.5)
+            .style("fill", function(d) {
+                if (d[0] == "{{term}}") return "lightgreen";
+                else return "steelblue";
+            })
+            .style("stroke", function(d) {
+                if (d[0] == "{{term}}") return "green";
+                else return "3366CC";
+            })
             .style("stroke-width", "1.5px")
             .on("mouseover", mouseoverEvent)
             .on("mouseout", mouseoutEvent);
