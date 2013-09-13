@@ -107,8 +107,20 @@
             .attr("height", height)
             .attr("class", "dot chart")
             .call(zoomvar)
+            .on("mouseout", function() {
+                var mousex = (d3.mouse(this)[0]);
+                var mousey = (d3.mouse(this)[1]);
+                if (mousex <= 0 || mousex >= 960 || mousey <= 0 || mousey >= 500) {
+                    //alert("x: " + mousex + "\ny: " + mousey);
+                    zoomvar.on("zoom",null);
+                    d3.select("#semantic_map").select("svg").call(zoom);
+                };
+            })
+            .on("mouseover", function() {
+                zoomvar.on("zoom", zoom);
+            })
             .append("g")
-            .attr("class", "ggroup");
+                .attr("class", "ggroup");
 
         var node = svg.selectAll("circle.node")
             .data(data)
@@ -155,6 +167,12 @@
             .style("stroke-width", "1.5px")
             .on("mouseover", mouseoverEvent)
             .on("mouseout", mouseoutEvent);
+
+        svg.append("svg:rect")
+            .attr("width", width)
+            .attr("height", height)
+            .style("fill", "none")
+            .style("stroke", "#000");
 
         function pad(scale, k) {
           var range = scale.range();
