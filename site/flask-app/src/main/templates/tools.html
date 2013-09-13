@@ -16,7 +16,7 @@
 <p>
     <strong>Choose a language:</strong>
     <ul>
-        {% for l in languages %}
+        {% for l in languages_semantics %}
         <li><a href="{{ url_for('tools_semantics', iso=l) }}">{{ languages_data[l]['label'] }} ({{ l }})</a></li>
         {% endfor %}
     </ul>
@@ -36,7 +36,7 @@
 <p>
     <strong>Choose a language:</strong>
     <ul>
-        {% for l in languages %}
+        {% for l in languages_prediction %}
         <li><a href="{{ url_for('tools_prediction', iso=l) }}">{{ languages_data[l]['label'] }} ({{ l }})</a></li>
         {% endfor %}
     </ul>

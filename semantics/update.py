@@ -51,14 +51,18 @@ for f in glob.glob(os.path.join(corpus_dir, "*.zip")):
 
     # <codecell>
 
-    r = requests.get(
-        "https://www.poio.eu/static/stopwords/{0}.txt".format(language),
-        verify=False)
-    stopwords = r.content.decode("utf-8").split()
-    r = requests.get(
-        "https://www.poio.eu/static/ignorechars/{0}.txt".format(language),
-        verify=False)
-    ignorechars = r.content.decode("utf-8")
+    stopwords_file = os.path.join("..", "stopwords",
+        "{0}.txt".format(language))
+    if not os.path.exists(stopwords_file):
+        continue
+    s_f = codecs.open(stopwords_file, "r", "utf-8")
+    stopwords = s_f.read().split()
+    s_f.close()
+
+    separators_file = os.path.join("..", "separators", "allchars.txt")
+    s_f = codecs.open(separators_file, "r", "utf-8")
+    separators = s_f.read()
+    s_f.close()
 
     # <markdowncell>
 
@@ -104,7 +108,7 @@ for f in glob.glob(os.path.join(corpus_dir, "*.zip")):
 
     print("  Pre-processing...")
 
-    re_ignore_chars = re.compile(u"[{0}]".format(ignorechars))
+    re_ignore_chars = re.compile(u"[{0}]".format(separators))
     def _words_for_document(doc):
         words = doc.split()
         words2 = list()
