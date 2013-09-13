@@ -30,18 +30,19 @@ def main(argv):
     f1 = codecs.open(argv[1], "r", "utf-8")
     f2 = codecs.open(argv[2], "w", "utf-8")
 
-
     re_wrong_tags = re.compile("<bookdata\.authors\.length") 
     re_wrong_tags2 = re.compile("var numforms = 0; var wikEdAutoUpdateUrl[^<]*") 
     re_wrong_tags3 = re.compile(u"<୧%")
-
-
+    re_dashes = re.compile(u"\-\-~~~~")
+    re_code = re.compile(u"\<=2;i\+\+\) {  authorn.*")
 
     for line in f1:
       
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
+        line = re_dashes.sub("", line)
+        line = re_code.sub("", line)
 
 
         f2.write(line)
