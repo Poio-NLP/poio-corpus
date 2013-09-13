@@ -17,7 +17,7 @@ import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import presage
+#import presage
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -37,16 +37,16 @@ with open(languages_data_file, "rb") as f:
     languages_data = pickle.load(f)
 
 
-class DemoCallback(presage.PresageCallback):
-    def __init__(self):
-        presage.PresageCallback.__init__(self)
-        self.buffer = ''
+# class DemoCallback(presage.PresageCallback):
+#     def __init__(self):
+#         presage.PresageCallback.__init__(self)
+#         self.buffer = ''
 
-    def get_past_stream(self):
-        return self.buffer
+#     def get_past_stream(self):
+#         return self.buffer
     
-    def get_future_stream(self):
-        return ''
+#     def get_future_stream(self):
+#         return ''
 
 ###################################### Pages
 
@@ -81,9 +81,27 @@ def corpus():
 @app.route("/tools")
 def tools():
     #languages_data = get_languages_data()
-    iso_codes = sorted(languages_data.keys())
+    iso_codes_all = sorted(languages_data.keys())
+
+    # filter iso codes for semantic maps
+    iso_codes_semantics = []
+    for iso in iso_codes_all:
+        indices_file = os.path.join(app.static_folder, 'semantics',
+            "{0}-indices.pickle".format(iso))
+        if os.path.exists(indices_file):
+            iso_codes_semantics.append(iso)
+
+    # filter iso codes for text prediction
+    iso_codes_prediction = []
+    for iso in iso_codes_all:
+        config_file = os.path.join(app.static_folder, 'prediction',
+            "{0}.xml".format(iso))
+        if os.path.exists(config_file):
+            iso_codes_prediction.append(iso)
+
     return render_template('tools.html', languages_data = languages_data,
-        languages = iso_codes)
+        languages_semantics = iso_codes_semantics,
+        languages_prediction = iso_codes_prediction)
 
 @app.route("/tools/semantics/<iso>", methods=["POST"])
 def tools_semantics_term(iso):

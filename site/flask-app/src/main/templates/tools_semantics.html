@@ -37,8 +37,9 @@
 
 {% block scripts %}
 
-    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>-->
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
+    <!-- Remote loading does not work via SSL -->
+    <!--<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>-->
 
     <script>
         // Enable moveToFront function
