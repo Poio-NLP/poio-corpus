@@ -105,6 +105,7 @@ for wiki_name, page in lang_pages:
         'w', zipfile.ZIP_DEFLATED)
     for f in files:
         myzip.write(f, os.path.basename(f))
+    myzip.write("LICENSE.wikipedia", "LICENSE")
     myzip.close()
 
     print
