@@ -121,15 +121,16 @@ a:hover{color:inherit}
   text-align: justify;  
 }
 
-#footer {
+div#footer {
+  font-size:12px;
   margin-top:50px;
   width:100%;
   text-align:center;  
   /*border-top: 1px dotted black;*/
 }
 
-div#footer {
-  font-size:12px;
+div#footer a {
+  margin-right: 30px;
 }
 
 div#header a {

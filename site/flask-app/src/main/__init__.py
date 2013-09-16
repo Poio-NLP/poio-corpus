@@ -151,6 +151,17 @@ def prediction():
 def documentation():
     return render_template('documentation.html')
 
+@app.route("/imprint")
+def imprint():
+    return render_template('imprint.html')
+
+@app.route("/privacy")
+def privacy():
+    return render_template('privacy.html')
+
+@app.route("/licenses")
+def licenses():
+    return render_template('licenses.html')
 
 ##################################### Helpers
 
