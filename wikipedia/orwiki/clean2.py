@@ -33,15 +33,19 @@ def main(argv):
     re_wrong_tags = re.compile("<bookdata\.authors\.length") 
     re_wrong_tags2 = re.compile("var numforms = 0; var wikEdAutoUpdateUrl[^<]*") 
     re_wrong_tags3 = re.compile(u"<୧%")
+    re_wrong_tags4 = re.compile("<!-- Please do not make edit tests here. Instead copy the following link, paste[^<]*") 
     re_dashes = re.compile(u"\-\-~~~~")
     re_code = re.compile(u"\<=2;i\+\+\) {  authorn.*")
+    re_dashes2 = re.compile("\-\-")
 
     for line in f1:
       
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
+        line = re_wrong_tags4.sub("", line)
         line = re_dashes.sub("", line)
+        line = re_dashes2.sub("-", line)
         line = re_code.sub("", line)
 
 
