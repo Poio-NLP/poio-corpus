@@ -16,7 +16,6 @@ import codecs
 import re
 from tempfile import mkdtemp
 
-import requests
 from config import Config
 
 ###################################### Main
@@ -35,11 +34,11 @@ def main(argv):
         if os.path.exists(sql_file):
             os.remove(sql_file)
 
-        r = requests.get(
-            "https://www.poio.eu/static/ignorechars/{0}.txt".format(
-                l['iso_639_3']),
-            verify=False)
-        ignorechars = r.content.decode("utf-8")
+        separators_file = os.path.join(
+            "..", "build", "separators", "allchars.txt")
+        s_f = codecs.open(separators_file, "r", "utf-8")
+        separators = s_f.read()
+        s_f.close()
 
         dictionary = []
 
@@ -48,8 +47,7 @@ def main(argv):
                     l['iso_639_1']))):
             
             _, filename = os.path.split(os.path.abspath(f))
-            filebasename, fileext = os.path.splitext(filename)
-            language = filename[:3]
+            filebasename, _ = os.path.splitext(filename)
 
             print("Processing {0}".format(filename))
 
@@ -73,7 +71,7 @@ def main(argv):
                 doc = ""
                 with codecs.open(text_file, "r", "utf-8") as f:
                     doc = f.read()
-                dictionary.extend(_words_for_document(doc, ignorechars))
+                dictionary.extend(_words_for_document(doc, separators))
 
             finally:
                 try:

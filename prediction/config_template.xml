@@ -63,7 +63,7 @@
     <Predictors>
         <SmoothedNgramPredictor>
             <LOGGER>ERROR</LOGGER>
-            <DBFILENAME>static/prediction/{0}.sqlite</DBFILENAME>
+            <DBFILENAME>/home/pbouda/Projects/git-github/poio-corpus/site/flask-app/src/main/static/prediction/{0}.sqlite</DBFILENAME>
             <!-- \delta_0, \delta_1, ..., \delta_(n-1) -->
             <DELTAS>0.01 0.1 0.89</DELTAS>
             <LEARN>false</LEARN>

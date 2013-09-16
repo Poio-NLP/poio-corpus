@@ -5,7 +5,7 @@ The Poio Corpus is a freely available collection of language resources for the l
 
 The official Poio Corpus website is: https://www.poio.eu
 
-Poio Corpus is part of the Poio project: http://media.cidles.eu/poio/poio-api/
+Poio Corpus is part of the Poio project: http://media.cidles.eu/poio/
 
 License
 -------
