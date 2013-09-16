@@ -8,5 +8,7 @@ config
 numpy
 scipy
 presage
+cython
 sparsesvd
 s3cmd
+regex
