@@ -52,10 +52,38 @@
       container: 'map',
       width: width,
       height: height
+      //draggable: true              ATTEMPT 3 DRAG: FAIL BUGS OUT
     });
     var worldLayer = new Kinetic.Layer();
     var shapesLayer = new Kinetic.Layer();
     var tooltipLayer = new Kinetic.Layer();
+
+/* ATTEMPT 2 TO ZOOM/PAN: FAIL
+    ZOOM BUGS OUT AND NO PAN
+    document.getElementById("map").addEventListener("mousewheel", function(e) {
+        var zoomAmount = e.wheelDeltaY*0.0001;
+        stage.setScale(stage.getScale().x+zoomAmount);
+        stage.draw();
+        e.preventDefault();
+    }, false)
+
+    stage.on("dragstart dragmove", function(e) {window.draggingNode = true;});
+    stage.on("dragend", function(e) { window.draggingNode = false;});
+    stage.on("mousedown", function(e) {
+        if (window.draggingNode) return false;
+        if (e.which==1) {
+            window.draggingStart = {x: e.pageX, y: e.pageY, stageX: stage.getX(), stageY: stage.getY()};
+            window.draggingStage = true;
+        }
+    });
+    stage.on("mousemove", function(e) {
+        if (window.draggingNode || !window.draggingStage) return false;
+        stage.setX(window.draggingStart.stageX+(e.pageX-window.draggingStart.x));
+        stage.setY(window.draggingStart.stageY+(e.pageY-window.draggingStart.y));
+        stage.draw();
+    });
+    stage.on("mouseup", function(e) { window.draggingStage = false } );*/
+
     stage.add(worldLayer);
     stage.add(shapesLayer);
     stage.add(tooltipLayer);
@@ -67,6 +95,16 @@
 	    .translate([700,250])
 	    .clipAngle(90)
 	    .clipExtent([[0,0],[width,height]]);
+
+/*  ATTEMPT 1 TO ZOOM/PAN: FAIL
+    var zoomvar = d3.behavior.zoom()
+        .on("zoom", zoom);
+
+    stage.call(zoomvar);
+
+    function zoom() {
+         stage.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    }*/
 
 	var path = d3.geo.path()
 	    .projection(projection)
