@@ -15,7 +15,7 @@ import codecs
 import urllib2
 import urlparse
 import zipfile
-
+import helpers
 import requests
 from BeautifulSoup import BeautifulSoup
 
@@ -31,50 +31,25 @@ lang_pages = [(link.string, urlparse.urljoin(url, link['href']))
                         if link.string == l]
 
 for wiki_name, page in lang_pages:
-    html_page = urllib2.urlopen(page)
-    soup = BeautifulSoup(html_page)
-    all_links = soup('a')
-    dump_link = None
-    wiki_date = None
-    for l in all_links:
-        match = re.match(wiki_name + "-(\d{8})-pages-articles.xml.bz2", l.string)
-        if match:
-            wiki_date = match.group(1)
-            dump_link = urlparse.urljoin(page, l['href'])
-            break
+    wiki_date, dump_link = helpers.dump_link(wiki_name, page)
 
     if not dump_link:
         print("Could not find dump link for {0}.".format(wiki_name))
         sys.exit(1)
 
     print("Downloading {0}...".format(dump_link))
-    file_name = dump_link.split('/')[-1]
-    file_path = os.path.join(wiki_name, file_name)
-    if not os.path.exists(file_path):
-        r = requests.get(dump_link)
-        with open(file_path, "wb") as f:
-            f.write(r.content)
-
-    os.system("{0} WikiExtractor.py -w -f tanl {1} {2}/extracted".format(
-        sys.executable,
-        file_path,
-        wiki_name))
+    file_path = helpers.download_dump(dump_link, wiki_name)
+   
+    
+    helpers.wikipedia_extractor(file_path, wiki_name)
 
     # Concatenate output files
-    filenames = glob.glob(os.path.join(wiki_name, "extracted", "*.raw"))
-    with codecs.open(os.path.join(
-            wiki_name, "{0}.xml".format(wiki_name)), 'w', 'utf-8') as outfile:
-        for fname in filenames:
-            with codecs.open(fname, "r", "utf-8") as infile:
-                for line in infile:
-                    outfile.write(line)
+    helpers.concatenate(wiki_name)
 
     # Calling clean scripts
     print("Cleaning...")
-    os.system("{0} clean.py {1} {2}".format(
-        sys.executable,
-        os.path.join(wiki_name, "{0}.xml".format(wiki_name)),
-        os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name))))
+    helpers.clean_1(wiki_name)   
+   
 
     os.system("{0} {1}/clean2.py {2} {3}".format(
         sys.executable,
