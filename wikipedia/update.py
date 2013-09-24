@@ -15,9 +15,11 @@ import codecs
 import urllib2
 import urlparse
 import zipfile
-import helpers
+
 import requests
 from BeautifulSoup import BeautifulSoup
+
+import helpers
 
 languages = os.walk('.').next()[1]
 

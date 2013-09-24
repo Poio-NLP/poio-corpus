@@ -12,10 +12,11 @@ import sys
 import glob
 import codecs
 import zipfile
-import requests
 import re
 import urllib2
 import urlparse
+
+import requests
 from BeautifulSoup import BeautifulSoup
 
 def dump_link(wiki_name, page):
