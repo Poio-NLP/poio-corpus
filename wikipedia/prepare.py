@@ -34,18 +34,24 @@ languages = os.walk('.').next()[1]
 #list to collect all the languages to prepare
 current_languages = [] 
 
-if len(sys.argv) == 1: #if no language is specified in command line
-    for l in languages: #iterates over existing directories
-        cleaned2_path = os.path.join(l, "{0}_cleaned2.xml".format(l)) #path to cleaned2.xml-file
-        if not os.path.exists(cleaned2_path): #if there is no cleaned2.xml-file for language yet
-            current_languages.append(l) #adds language to list of languages to prepare
-else: #if one ore more language is specified in command line
-    for i in range(1, len(sys.argv)): #iterates over argv while excluding argv[0] (=> names of specified languages)
-        if sys.argv[i] in languages: #checks if there exists a directory named after specified language
-            cleaned2_path = os.path.join(sys.argv[i], "{0}_cleaned2.xml".format(sys.argv[i])) #see above...
-            if not os.path.exists(cleaned2_path): #see above...
-                current_languages.append(sys.argv[i]) #see above...
-        else: #in case there is no directory named after specified language
+#if no language is specified in command line
+if len(sys.argv) == 1: 
+    for l in languages: 
+        #path to cleaned2.xml-file
+        cleaned2_path = os.path.join(l, "{0}_cleaned2.xml".format(l)) 
+        if not os.path.exists(cleaned2_path): 
+            current_languages.append(l) 
+#if one ore more language is specified in command line
+else: 
+    #iterates over argv while excluding argv[0] (=> names of specified languages)
+    for i in range(1, len(sys.argv)): 
+        #checks if there exists a directory named after specified language
+        if sys.argv[i] in languages: 
+            cleaned2_path = os.path.join(sys.argv[i], "{0}_cleaned2.xml".format(sys.argv[i])) 
+            if not os.path.exists(cleaned2_path):
+                current_languages.append(sys.argv[i]) 
+        #in case there is no directory named after specified language
+        else: 
             print("A directory named {0} is required in order to prepare this language. (Also {0} has to be a wikiname (e.g. barwiki, sawiki, ...).)".format(sys.argv[i]))
 
             
@@ -69,44 +75,22 @@ lang_pages = [(link.string, urlparse.urljoin(url, link['href']))
                         if link.string == l]
 
 for wiki_name, page in lang_pages:
-    html_page = urllib2.urlopen(page)
-    soup = BeautifulSoup(html_page)
-    all_links = soup('a')
-    dump_link = None
-    wiki_date = None
-    for l in all_links:
-        match = re.match(wiki_name + "-(\d{8})-pages-articles.xml.bz2", l.string)
-        if match:
-            wiki_date = match.group(1)
-            dump_link = urlparse.urljoin(page, l['href'])
-            break
+    wiki_date, dump_link = helpers.dump_link(wiki_name, page)
+           
 
     if not dump_link:
         print("Could not find dump link for {0}.".format(wiki_name))
         sys.exit(1)
 
     print("Downloading {0}...".format(dump_link))
-    file_name = dump_link.split('/')[-1]
-    file_path = os.path.join(wiki_name, file_name)
-    if not os.path.exists(file_path):
-        r = requests.get(dump_link)
-        with open(file_path, "wb") as f:
-            f.write(r.content)
-
+    file_path = helpers.download_dump(dump_link, wiki_name)
+   
+    
     helpers.wikipedia_extractor(file_path, wiki_name)
 
     # Concatenate output files
-    filenames = glob.glob(os.path.join(wiki_name, "extracted", "*.raw"))
-    with codecs.open(os.path.join(
-            wiki_name, "{0}.xml".format(wiki_name)), 'w', 'utf-8') as outfile:
-        for fname in filenames:
-            with codecs.open(fname, "r", "utf-8") as infile:
-                for line in infile:
-                    outfile.write(line)
+    helpers.concatenate(wiki_name)
 
     # Calling first clean script
     print("Cleaning...")
-    os.system("{0} clean.py {1} {2}".format(
-        sys.executable,
-        os.path.join(wiki_name, "{0}.xml".format(wiki_name)),
-        os.path.join(wiki_name, "{0}_cleaned1.xml".format(wiki_name))))
+    helpers.clean_1(wiki_name)

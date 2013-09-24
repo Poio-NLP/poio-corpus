@@ -23,9 +23,11 @@ def main(argv):
 
     languages_data = {}
     for lang in config['supported_languages']:
-        iso = lang['iso_639_3']
-        language_info = get_language_info(iso)
-        languages_data[iso] = language_info
+        iso3 = lang['iso_639_3']
+        iso1 = lang['iso_639_1']
+
+        language_info = get_language_info(iso1, iso3)
+        languages_data[iso3] = language_info
 
     langinfo_dir = os.path.join("..", "build", "langinfo")
     pickle_file = os.path.join(langinfo_dir, "languages_data.pickle")
@@ -34,12 +36,12 @@ def main(argv):
 
 ###################################### Helpers
 
-def get_language_info(iso):
+def get_language_info(iso1, iso3):
     corpus_dir = os.path.abspath(os.path.join("..", "build", "corpus"))
     corpus_files = []
-    for f in glob.glob(os.path.join(corpus_dir, "{0}*.zip".format(iso))):
+    for f in glob.glob(os.path.join(corpus_dir, "{0}*.zip".format(iso1))):
         corpus_files.append(os.path.basename(f))
-    language_info = get_info_for_iso(iso)
+    language_info = get_info_for_iso(iso3)
     language_info['files'] = corpus_files
     return language_info
 
