@@ -35,183 +35,314 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='media/js/libs/queue.v1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='media/js/libs/topojson.v1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>-->
+
+    <script src="{{ url_for('static', filename='media/js/libs/d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/d3.geo.js') }}"></script>
 
 	<script type="text/javascript">
 
-	var width = 1000,
-	    height = 600;
+        var width = 1000,
+            height = 600;
 
-	/*var canvas = d3.select("#map").append("canvas")
-	    .attr("width", width)
-	    .attr("height", height);*/
-    var stage = new Kinetic.Stage({
-      container: 'map',
-      width: width,
-      height: height
-      //draggable: true              ATTEMPT 3 DRAG: FAIL BUGS OUT
-    });
-    var worldLayer = new Kinetic.Layer();
-    var shapesLayer = new Kinetic.Layer();
-    var tooltipLayer = new Kinetic.Layer();
+        var feature;
 
-/* ATTEMPT 2 TO ZOOM/PAN: FAIL
-    ZOOM BUGS OUT AND NO PAN
-    document.getElementById("map").addEventListener("mousewheel", function(e) {
-        var zoomAmount = e.wheelDeltaY*0.0001;
-        stage.setScale(stage.getScale().x+zoomAmount);
-        stage.draw();
-        e.preventDefault();
-    }, false)
+        var projection = d3.geo.azimuthal()
+            .scale(380)
+            .origin([-71.03,42.37])
+            .mode("orthographic")
+            .translate([width / 2, height / 2]);
 
-    stage.on("dragstart dragmove", function(e) {window.draggingNode = true;});
-    stage.on("dragend", function(e) { window.draggingNode = false;});
-    stage.on("mousedown", function(e) {
-        if (window.draggingNode) return false;
-        if (e.which==1) {
-            window.draggingStart = {x: e.pageX, y: e.pageY, stageX: stage.getX(), stageY: stage.getY()};
-            window.draggingStage = true;
+        var circle = d3.geo.greatCircle()
+            .origin(projection.origin());
+
+        // TODO fix d3.geo.azimuthal to be consistent with scale
+/*        var scale = {
+          orthographic: 380,
+          stereographic: 380,
+          gnomonic: 380,
+          equidistant: 380 / Math.PI * 2,
+          equalarea: 380 / Math.SQRT2
+        };*/
+
+        var path = d3.geo.path()
+            .projection(projection);
+
+        // var zoomvar = d3.behavior.zoom(true)
+        //     //.translate(projection.origin())
+        //     .scale(projection.scale())
+        //     .scaleExtent([100, 800])
+        //     .on("zoom", move);
+
+        var svg = d3.select("#map").append("svg:svg")
+            .attr("width", width)
+            .attr("height", height)
+            .on("mousedown", mousedown)
+            //.call(zoomvar);
+
+        d3.json("{{ url_for('static', filename='media/data/world-countries.json') }}", function(collection) {
+          feature = svg.selectAll("path")
+              .data(collection.features)
+            .enter().append("svg:path")
+              .attr("d", clip);
+
+        });
+
+        d3.select(window)
+            .on("mousemove", mousemove)
+            .on("mouseup", mouseup);
+
+        d3.select("select").on("change", function() {
+          projection.mode(this.value).scale(scale[this.value]);
+          refresh(750);
+        });
+
+        var m0,
+            o0;
+
+        function mousedown() {
+          m0 = [d3.event.pageX, d3.event.pageY];
+          o0 = projection.origin();
+          d3.event.preventDefault();
         }
-    });
-    stage.on("mousemove", function(e) {
-        if (window.draggingNode || !window.draggingStage) return false;
-        stage.setX(window.draggingStart.stageX+(e.pageX-window.draggingStart.x));
-        stage.setY(window.draggingStart.stageY+(e.pageY-window.draggingStart.y));
-        stage.draw();
-    });
-    stage.on("mouseup", function(e) { window.draggingStage = false } );*/
 
-    stage.add(worldLayer);
-    stage.add(shapesLayer);
-    stage.add(tooltipLayer);
+        function mousemove() {
+          if (m0) {
+            var m1 = [d3.event.pageX, d3.event.pageY],
+                o1 = [o0[0] + (m0[0] - m1[0]) / 8, o0[1] + (m1[1] - m0[1]) / 8];
+            projection.origin(o1);
+            circle.origin(o1)
+            refresh();
+          }
+        }
 
-	var c = worldLayer.getContext();
+        function mouseup() {
+          if (m0) {
+            mousemove();
+            m0 = null;
+          }
+        }
 
-	var projection = d3.geo.orthographic()
-	    .scale(250)
-	    .translate([700,250])
-	    .clipAngle(90)
-	    .clipExtent([[0,0],[width,height]]);
+        function refresh(duration) {
+          (duration ? feature.transition().duration(duration) : feature).attr("d", clip);
+        }
 
-/*  ATTEMPT 1 TO ZOOM/PAN: FAIL
-    var zoomvar = d3.behavior.zoom()
-        .on("zoom", zoom);
+        function clip(d) {
+          return path(circle.clip(d));
+        }
 
-    stage.call(zoomvar);
+        function move() {
+            if(d3.event){
+                var scale = d3.event.scale;
+                var origin = [d3.event.translate[0] * -1, d3.event.translate[1]];
+                
+                projection.scale(scale);
+                //space.scale(scale * 3);
+                backgroundCircle.attr('r', scale);
+                path.pointRadius(2 * scale / scale0);
+ 
+                projection.origin(origin);
+                circle.origin(origin);
+                
+                //globe and stars spin in the opposite direction because of the projection mode
+                /*var spaceOrigin = [origin[0] * -1, origin[1] * -1];
+                space.origin(spaceOrigin);*/
 
-    function zoom() {
-         stage.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    }*/
+                //redraw
+                feature.attr("d", clip);
+            }
+        }
 
-	var path = d3.geo.path()
-	    .projection(projection)
-	    .context(c);
+        (function transition() {
+            d3.transition()
+            .delay(1000)
+            .duration(2500)
+            .tween("rotate", function() {
+                //var r = d3.interpolate(projection.rotate(), [-25, -57]);
+                var s = d3.interpolate(projection.scale(), 900);
+                return function(t) {
+                    //projection.rotate(r(t));
+                    projection.scale(s(t));
+                    c.clearRect(0, 0, width, height);
+                    //draw_land();
+                };
+            })
+        })();
+
+
+// 	var width = 1000,
+// 	    height = 600;
+
+// 	/*var canvas = d3.select("#map").append("canvas")
+// 	    .attr("width", width)
+// 	    .attr("height", height);*/
+//     var stage = new Kinetic.Stage({
+//       container: 'map',
+//       width: width,
+//       height: height
+//       //draggable: true              //ATTEMPT 3 DRAG: FAIL BUGS OUT
+//     });
+//     var worldLayer = new Kinetic.Layer();
+//     var shapesLayer = new Kinetic.Layer();
+//     var tooltipLayer = new Kinetic.Layer();
+
+// // ATTEMPT 2 TO ZOOM/PAN: FAIL
+//     //ZOOM BUGS OUT AND NO PAN
+//     document.getElementById("map").addEventListener("mousewheel", function(e) {
+//         var zoomAmount = e.wheelDeltaY*0.0001;
+//         stage.setScale(stage.getScale().x+zoomAmount);
+//         stage.draw();
+//         e.preventDefault();
+//     }, false)
+
+//     stage.on("dragstart dragmove", function(e) {window.draggingNode = true;});
+//     stage.on("dragend", function(e) { window.draggingNode = false;});
+//     stage.on("mousedown", function(e) {
+//         if (window.draggingNode) return false;
+//         if (e.which==1) {
+//             window.draggingStart = {x: e.pageX, y: e.pageY, stageX: stage.getX(), stageY: stage.getY()};
+//             window.draggingStage = true;
+//         }
+//     });
+//     stage.on("mousemove", function(e) {
+//         if (window.draggingNode || !window.draggingStage) return false;
+//         stage.setX(window.draggingStart.stageX+(e.pageX-window.draggingStart.x));
+//         stage.setY(window.draggingStart.stageY+(e.pageY-window.draggingStart.y));
+//         stage.draw();
+//     });
+//     stage.on("mouseup", function(e) { window.draggingStage = false } );
+
+//     stage.add(worldLayer);
+//     stage.add(shapesLayer);
+//     stage.add(tooltipLayer);
+
+// 	var c = worldLayer.getContext();
+
+// 	var projection = d3.geo.orthographic()
+// 	    .scale(250)
+// 	    .translate([700,250])
+// 	    .clipAngle(90)
+// 	    .clipExtent([[0,0],[width,height]]);
+
+// /*  ATTEMPT 1 TO ZOOM/PAN: FAIL
+//     var zoomvar = d3.behavior.zoom()
+//         .on("zoom", zoom);
+
+//     stage.call(zoomvar);
+
+//     function zoom() {
+//          stage.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+//     }*/
+
+// 	var path = d3.geo.path()
+// 	    .projection(projection)
+// 	    .context(c);
 	    
-	queue()
-	    .defer(d3.json, '/static/media/data/world-110m.json')
-	    .await(ready);
+// 	queue()
+// 	    .defer(d3.json, '/static/media/data/world-110m.json')
+// 	    .await(ready);
 
-	function ready(error, world) {
-	  var land = topojson.feature(world, world.objects.land),
-	      countries = topojson.feature(world, world.objects.countries),
-	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+// 	function ready(error, world) {
+// 	  var land = topojson.feature(world, world.objects.land),
+// 	      countries = topojson.feature(world, world.objects.countries),
+// 	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
 
-	  c.clearRect(0, 0, width, height);
+// 	  c.clearRect(0, 0, width, height);
 	  
-	  function draw_land() {
-        c.beginPath();
-    	c.fillStyle = "#acf";
-		path(land);
-		c.fill();
+// 	  function draw_land() {
+//         c.beginPath();
+//     	c.fillStyle = "#acf";
+// 		path(land);
+// 		c.fill();
 		  
-		c.beginPath();
-		c.strokeStyle = "#fff"; 
-		c.lineWidth = .5;
-		path(borders);
-		c.stroke();
-	  }
-	  draw_land();
+// 		c.beginPath();
+// 		c.strokeStyle = "#fff"; 
+// 		c.lineWidth = .5;
+// 		path(borders);
+// 		c.stroke();
+// 	  }
+// 	  draw_land();
 
-	  function draw_languages() {
-	    var languages = JSON.parse('{{ languages_json }}');
-	    Object.keys(languages).forEach(function (key) {
-	      var value = languages[key]
-	      var centerX = projection([value.geo.lon, value.geo.lat])[0];
-	      var centerY = projection([value.geo.lon, value.geo.lat])[1];
+// 	  function draw_languages() {
+// 	    var languages = JSON.parse('{{ languages_json }}');
+// 	    Object.keys(languages).forEach(function (key) {
+// 	      var value = languages[key]
+// 	      var centerX = projection([value.geo.lon, value.geo.lat])[0];
+// 	      var centerY = projection([value.geo.lon, value.geo.lat])[1];
 
-	      var circle = new Kinetic.Circle({
-	        x: centerX,
-            y: centerY,
-            fill: "red",
-            stroke: "#330000",
-            strokeWidth: 2,
-            radius: 5
-          });
+// 	      var circle = new Kinetic.Circle({
+// 	        x: centerX,
+//             y: centerY,
+//             fill: "red",
+//             stroke: "#330000",
+//             strokeWidth: 2,
+//             radius: 5
+//           });
 
-          circle.on("mousemove", function(){
-            var mousePos = stage.getMousePosition();
-            tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
-            tooltip.setText(value.label);
-            tooltip.show();
-            tooltipLayer.draw();
-            document.body.style.cursor = "pointer";
-          });
+//           circle.on("mousemove", function(){
+//             var mousePos = stage.getMousePosition();
+//             tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
+//             tooltip.setText(value.label);
+//             tooltip.show();
+//             tooltipLayer.draw();
+//             document.body.style.cursor = "pointer";
+//           });
  
-          circle.on("mouseout", function(){
-            tooltip.hide();
-            tooltipLayer.draw();
-            document.body.style.cursor = "default";
-          });
+//           circle.on("mouseout", function(){
+//             tooltip.hide();
+//             tooltipLayer.draw();
+//             document.body.style.cursor = "default";
+//           });
 
 
-          circle.on("click", function(){
-          	window.location = '{{ url_for('corpus') }}#' + key
-          });
+//           circle.on("click", function(){
+//           	window.location = '{{ url_for('corpus') }}#' + key
+//           });
 
-          shapesLayer.add(circle);
+//           shapesLayer.add(circle);
 
-	  	});
+// 	  	});
 
-  	    var tooltip = new Kinetic.Text({
-  	      text: "",
-	      fontFamily: "Calibri",
-	      fontSize: 12,
-	      padding: 5,
-	      textFill: "white",
-	      fill: "black",
-	      alpha: 0.75,
-	      visible: false
-	    });
-		tooltipLayer.add(tooltip);
-        shapesLayer.draw();
-	  }
+//   	    var tooltip = new Kinetic.Text({
+//   	      text: "",
+// 	      fontFamily: "Calibri",
+// 	      fontSize: 12,
+// 	      padding: 5,
+// 	      textFill: "white",
+// 	      fill: "black",
+// 	      alpha: 0.75,
+// 	      visible: false
+// 	    });
+// 		tooltipLayer.add(tooltip);
+//         shapesLayer.draw();
+// 	  }
 
-	  function show_languages() {
-	  	draw_languages();
-	  }
+// 	  function show_languages() {
+// 	  	draw_languages();
+// 	  }
  
-	  (function transition() {
-	    d3.transition()
-	      .delay(1000)
-	      .duration(2500)
-	      .tween("rotate", function() {
-	        var r = d3.interpolate(projection.rotate(), [-25, -57]);
-	        var s = d3.interpolate(projection.scale(), 900);
-	        return function(t) {
-	          projection.rotate(r(t));
-	          projection.scale(s(t));
-	          c.clearRect(0, 0, width, height);
-			  draw_land();
-	  		  //draw_languages();
-	        };
-	      })
-	      .each("end", show_languages)
-	  })();
-
-	}
+// 	  (function transition() {
+// 	    d3.transition()
+// 	      .delay(1000)
+// 	      .duration(2500)
+// 	      .tween("rotate", function() {
+// 	        var r = d3.interpolate(projection.rotate(), [-25, -57]);
+// 	        var s = d3.interpolate(projection.scale(), 900);
+// 	        return function(t) {
+// 	          projection.rotate(r(t));
+// 	          projection.scale(s(t));
+// 	          c.clearRect(0, 0, width, height);
+// 			  draw_land();
+// 	  		  //draw_languages();
+// 	        };
+// 	      })
+// 	      .each("end", show_languages)
+// 	  })();
+//
+//	}
 
 	</script>
 {% endblock %}
