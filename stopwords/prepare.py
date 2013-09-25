@@ -11,22 +11,22 @@
 
 # in order to run this script separately, enter in command line as follows:
 # (the last argument - how many words you want to be displayed - is optional)
-# c:\Python27\python.exe evas_tokenizer.py XXwiki-DDDDDDDD.txt XXX.txt DDD...
+# c:\Python27\python.exe prepare.py XXwiki-DDDDDDDD.txt XXX.txt DDD...
 
-# in this case: c:\Python27\python.exe evas_tokenizer.py cowiki-20130907.txt stopwords.txt 2000
+# in this case: c:\Python27\python.exe prepare.py cowiki-20130907.txt stopwords.txt 2000
 
 import codecs
 import sys
 import re
+import collections
 
 f1 = codecs.open(sys.argv[1], "r", "utf-8")
 f2 = codecs.open(sys.argv[2], "w", "utf-8")
 
-re_ignore_chars = re.compile(u"[`~!@#$%^&*\(\)_\-–+=\\|]}[{'\";:/?.>,<†„“।॥\d]")
+re_ignore_chars = re.compile(u"[`~!@#$%^&*()_\-–+=\\|\]}\[{'\";:/?.·•>,<†„“।॥\d]")
 
 
 
-f1.seek(0)
 text = f1.read()
 f1.close()
 text = text.replace("\n", " ") 
@@ -34,12 +34,9 @@ text = re_ignore_chars.sub("", text)
 words = text.split()
 
 
-tokens = {}    
+tokens = collections.defaultdict(int)  
 for w in words:
-    if w in tokens:
-        tokens[w] = tokens[w] + 1
-    else: 
-        tokens[w] = 1
+    tokens[w] += 1
 
 counter = 0        
 for w in sorted(tokens, key=tokens.get, reverse=True):
