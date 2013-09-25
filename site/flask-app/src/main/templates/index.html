@@ -50,6 +50,9 @@
 
         var feature;
 
+        var m0,
+            o0;
+
         var projection = d3.geo.azimuthal()
             .scale(230)
             .origin([0, 0])
@@ -74,6 +77,8 @@
             .on("mousedown", mousedown)
             //.call(zoomvar);
 
+        var dotslayer = svg.append("dotslayer")
+
         d3.json("{{ url_for('static', filename='media/data/world-countries.json') }}", function(collection) {
           feature = svg.selectAll("path")
             .data(collection.features)
@@ -88,15 +93,45 @@
             .on("mousemove", mousemove)
             .on("mouseup", mouseup);
 
-        d3.select("select").on("change", function() {
+       /* d3.select("select").on("change", function() {
           projection.mode(this.value).scale(scale[this.value]);
           refresh(750);
-        });
+        });*/
 
         transition();
+        draw_languages();
 
-        var m0,
-            o0;
+        function draw_languages() {
+            var languages = JSON.parse('{{ languages_json }}');
+            Object.keys(languages).forEach(function (key) {
+                var value = languages[key]
+                var centerX = projection([value.geo.lon, value.geo.lat])[0];
+                var centerY = projection([value.geo.lon, value.geo.lat])[1];
+                alert(centerX + "\n" + centerY);
+                var dots = dotslayer.append("dot")
+                    .attr("cx", centerX)
+                    .attr("cy", centerY)
+                    .attr("r", 5)
+                    .style("fill", "red")
+                    .style("stroke-width", "2px")
+                    .style("stroke", "#330000");
+                });
+
+                /*dots.on("mousemove", function(){
+                    var mousePos = stage.getMousePosition();
+                    tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
+                    tooltip.setText(value.label);
+                    tooltip.show();
+                    tooltipLayer.draw();
+                    document.body.style.cursor = "pointer";
+                });
+         
+                dots.on("mouseout", function(){
+                    tooltip.hide();
+                    tooltipLayer.draw();
+                    document.body.style.cursor = "default";
+                });*/
+        }
 
         function mousedown() {
           m0 = [d3.event.pageX, d3.event.pageY];
@@ -135,18 +170,11 @@
                 var origin = [d3.event.translate[0] * -1, d3.event.translate[1]];
                 
                 projection.scale(scale);
-                //space.scale(scale * 3);
                 backgroundCircle.attr('r', scale);
                 path.pointRadius(2 * scale / scale0);
  
                 projection.origin(origin);
                 circle.origin(origin);
-                
-                //globe and stars spin in the opposite direction because of the projection mode
-                /*var spaceOrigin = [origin[0] * -1, origin[1] * -1];
-                space.origin(spaceOrigin);*/
-
-                //redraw
                 feature.attr("d", clip);
             }
         }
