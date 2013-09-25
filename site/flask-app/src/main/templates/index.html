@@ -51,22 +51,13 @@
         var feature;
 
         var projection = d3.geo.azimuthal()
-            .scale(380)
-            .origin([-71.03,42.37])
+            .scale(230)
+            .origin([0, 0])
             .mode("orthographic")
             .translate([width / 2, height / 2]);
 
         var circle = d3.geo.greatCircle()
             .origin(projection.origin());
-
-        // TODO fix d3.geo.azimuthal to be consistent with scale
-/*        var scale = {
-          orthographic: 380,
-          stereographic: 380,
-          gnomonic: 380,
-          equidistant: 380 / Math.PI * 2,
-          equalarea: 380 / Math.SQRT2
-        };*/
 
         var path = d3.geo.path()
             .projection(projection);
@@ -85,10 +76,12 @@
 
         d3.json("{{ url_for('static', filename='media/data/world-countries.json') }}", function(collection) {
           feature = svg.selectAll("path")
-              .data(collection.features)
+            .data(collection.features)
             .enter().append("svg:path")
-              .attr("d", clip);
-
+            .style("fill", "#acf")
+            .style("stroke", "#fff")
+            .style("stroke-width", ".5px")
+            .attr("d", clip);
         });
 
         d3.select(window)
@@ -99,6 +92,8 @@
           projection.mode(this.value).scale(scale[this.value]);
           refresh(750);
         });
+
+        transition();
 
         var m0,
             o0;
@@ -156,21 +151,24 @@
             }
         }
 
-        (function transition() {
+        function transition() {
             d3.transition()
             .delay(1000)
             .duration(2500)
             .tween("rotate", function() {
-                //var r = d3.interpolate(projection.rotate(), [-25, -57]);
-                var s = d3.interpolate(projection.scale(), 900);
+                var r = d3.interpolate(projection.origin(), [8, 53]);
+                var s = d3.interpolate(projection.scale(), 880);
                 return function(t) {
-                    //projection.rotate(r(t));
+                    projection.origin(r(t));
+                    circle.origin(r(t));
                     projection.scale(s(t));
-                    c.clearRect(0, 0, width, height);
+                    //c.clearRect(0, 0, width, height);
                     //draw_land();
+                    feature.attr("d", clip);
+                    //refresh();
                 };
             })
-        })();
+        }
 
 
 // 	var width = 1000,
