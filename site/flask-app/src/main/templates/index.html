@@ -35,12 +35,12 @@
 {% endblock %}
 
 {% block scripts %}
-    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='media/js/libs/queue.v1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='media/js/libs/queue.v1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='media/js/libs/topojson.v1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>-->
 
-    <script src="{{ url_for('static', filename='media/js/libs/d3.js') }}"></script>
+    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.js') }}"></script>-->
     <script src="{{ url_for('static', filename='media/js/libs/d3.geo.js') }}"></script>
 
 	<script type="text/javascript">
@@ -71,18 +71,22 @@
         //     .scaleExtent([100, 800])
         //     .on("zoom", move);
 
-        var svg = d3.select("#map").append("svg:svg")
+        var svg = d3.select("#map").append("svg")
             .attr("width", width)
             .attr("height", height)
             .on("mousedown", mousedown)
+            //.append("g")
+            //.attr("class", "ggroup");
             //.call(zoomvar);
 
-        var dotslayer = svg.append("dotslayer")
+        var g = svg.append("g");
+
+        //var dotslayer = svg.selectAll("path").append("dotslayer")
 
         d3.json("{{ url_for('static', filename='media/data/world-countries.json') }}", function(collection) {
-          feature = svg.selectAll("path")
+          feature = g.selectAll("path")
             .data(collection.features)
-            .enter().append("svg:path")
+            .enter().append("path")
             .style("fill", "#acf")
             .style("stroke", "#fff")
             .style("stroke-width", ".5px")
@@ -99,38 +103,59 @@
         });*/
 
         transition();
-        draw_languages();
 
         function draw_languages() {
             var languages = JSON.parse('{{ languages_json }}');
+            var l = [];
             Object.keys(languages).forEach(function (key) {
+                l.push(languages[key])
+            });
+            var nodes = svg.append("g");
+            var node = nodes.selectAll("circle")
+                .data(l)
+                .enter()
+                .append("circle")
+                .attr("class", "dot")
+                //.attr("id", function(d) { return d[0]; })
+                .attr("cx", function(value) { return projection([value.geo.lon, value.geo.lat])[0]; })
+                .attr("cy", function(value) { return projection([value.geo.lon, value.geo.lat])[1]; })
+                .attr("r", 5.5)
+                .style("fill", "red")
+                .style("stroke-width", "2px")
+                .style("stroke", "#330000");
+
+            /*Object.keys(languages).forEach(function (key) {
                 var value = languages[key]
                 var centerX = projection([value.geo.lon, value.geo.lat])[0];
                 var centerY = projection([value.geo.lon, value.geo.lat])[1];
                 alert(centerX + "\n" + centerY);
-                var dots = dotslayer.append("dot")
+                var dots = svg.selectAll("path").append("dot")
                     .attr("cx", centerX)
                     .attr("cy", centerY)
                     .attr("r", 5)
                     .style("fill", "red")
                     .style("stroke-width", "2px")
                     .style("stroke", "#330000");
-                });
-
-                /*dots.on("mousemove", function(){
-                    var mousePos = stage.getMousePosition();
-                    tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
-                    tooltip.setText(value.label);
-                    tooltip.show();
-                    tooltipLayer.draw();
-                    document.body.style.cursor = "pointer";
-                });
-         
-                dots.on("mouseout", function(){
-                    tooltip.hide();
-                    tooltipLayer.draw();
-                    document.body.style.cursor = "default";
                 });*/
+
+            var tooltip = node.append("text")
+                .attr("x", function(value) { return (projection([value.geo.lon, value.geo.lat])[0]) + 5; })
+                .attr("y", function(value) { return (projection([value.geo.lon, value.geo.lat])[1]) + 15; })
+                //.style("font", "400 14px Droid Sans Mono") // Monospace font to calculate text width
+                .style("fill", "black")
+                //.style("visibility", "hidden")
+                .text(function(value) { return value.label; });
+
+            node.on("mousemove", function(value) {
+                tooltip.style("visibility", "visible");
+                document.body.style.cursor = "pointer";
+            });
+         
+            node.on("mouseout", function() {
+                tooltip.style("visibility", "hidden");
+                document.body.style.cursor = "default";
+            });
+
         }
 
         function mousedown() {
@@ -175,6 +200,7 @@
  
                 projection.origin(origin);
                 circle.origin(origin);
+                
                 feature.attr("d", clip);
             }
         }
@@ -196,7 +222,9 @@
                     //refresh();
                 };
             })
+            .each("end", draw_languages);
         }
+
 
 
 // 	var width = 1000,
@@ -350,25 +378,25 @@
 // 	  	draw_languages();
 // 	  }
  
-// 	  (function transition() {
-// 	    d3.transition()
-// 	      .delay(1000)
-// 	      .duration(2500)
-// 	      .tween("rotate", function() {
-// 	        var r = d3.interpolate(projection.rotate(), [-25, -57]);
-// 	        var s = d3.interpolate(projection.scale(), 900);
-// 	        return function(t) {
-// 	          projection.rotate(r(t));
-// 	          projection.scale(s(t));
-// 	          c.clearRect(0, 0, width, height);
-// 			  draw_land();
-// 	  		  //draw_languages();
-// 	        };
-// 	      })
-// 	      .each("end", show_languages)
-// 	  })();
-//
-//	}
+	  // (function transition() {
+	  //   d3.transition()
+	  //     .delay(1000)
+	  //     .duration(2500)
+	  //     .tween("rotate", function() {
+	  //       var r = d3.interpolate(projection.rotate(), [-25, -57]);
+	  //       var s = d3.interpolate(projection.scale(), 900);
+	  //       return function(t) {
+	  //         projection.rotate(r(t));
+	  //         projection.scale(s(t));
+	  //         c.clearRect(0, 0, width, height);
+			//   draw_land();
+	  // 		  //draw_languages();
+	  //       };
+	  //     })
+	  //     .each("end", show_languages)
+	  // })();
+
+	  // }
 
 	</script>
 {% endblock %}
