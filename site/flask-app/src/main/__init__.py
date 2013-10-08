@@ -6,6 +6,10 @@ import pickle
 import operator
 import json
 import codecs
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from flask import Flask, render_template, Markup, request, url_for, redirect, \
     flash, Response
@@ -17,7 +21,8 @@ import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import presage
+import pressagio.callback
+import pressagio
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -37,15 +42,15 @@ with open(languages_data_file, "rb") as f:
     languages_data = pickle.load(f)
 
 
-class DemoCallback(presage.PresageCallback):
-    def __init__(self):
-        presage.PresageCallback.__init__(self)
-        self.buffer = ''
+class DemoCallback(pressagio.callback.Callback):
+    def __init__(self, buffer):
+        pressagio.callback.Callback.__init__(self)
+        self.buffer = buffer
 
-    def get_past_stream(self):
+    def past_stream(self):
         return self.buffer
     
-    def get_future_stream(self):
+    def future_stream(self):
         return ''
 
 ###################################### Pages
@@ -138,14 +143,19 @@ def tools_prediction(iso):
 @app.route("/_prediction")
 def prediction():
     iso = request.args.get('iso', '', type=str)
-    # Presage owns callback, so we create it and disown it
-    callback = DemoCallback().__disown__()
-    prsg = presage.Presage(callback, os.path.join(app.static_folder, 'prediction', "{0}.xml".format(iso)))
-
     string_buffer = request.args.get('text', '').encode("utf-8")
-    callback.buffer = string_buffer
-    prediction = list(prsg.predict())
-    return Response(json.dumps(prediction), mimetype='application/json')
+
+    db_file = os.path.abspath(os.path.join(app.static_folder, 'prediction', "{0}.sqlite".format(iso)))
+    config_file = os.path.join(app.static_folder, 'prediction', "{0}.ini".format(iso))
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    config.set("DefaultSmoothedNgramPredictor", "dbfilename", db_file)
+
+    callback = DemoCallback(string_buffer)
+    prsgio = pressagio.Pressagio(callback, config)
+    predictions = prsgio.predict()
+
+    return Response(json.dumps(predictions), mimetype='application/json')
 
 @app.route("/documentation")
 def documentation():

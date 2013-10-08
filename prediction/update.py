@@ -23,7 +23,7 @@ import pressagio.dbconnector
 ###################################### Main
 
 def main(argv):
-    config_file = file(os.path.join('..', 'config.ini'))
+    config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)
 
@@ -69,7 +69,7 @@ def main(argv):
                     print("  Parsing {0} for cardinality {1}...".format(
                         text_file, ngram_size))
                     ngram_map = pressagio.tokenizer.forward_tokenize_file(
-                        text_file, ngram_size, True)
+                        text_file, ngram_size)
 
                     print("  Writing result to {0}...".format(sql_file))
                     pressagio.dbconnector.insert_ngram_map(ngram_map,
@@ -92,19 +92,19 @@ def main(argv):
                     pass
 
         # write dictionary file
-        dict_file = os.path.join(prediction_dir, "{0}_dict.txt".format(
-            iso_639_3))
-        with codecs.open(dict_file, "w", "utf-8") as f:
-            f.write("\n".join(dictionary))
+        #dict_file = os.path.join(prediction_dir, "{0}_dict.txt".format(
+        #    iso_639_3))
+        #with codecs.open(dict_file, "w", "utf-8") as f:
+        #    f.write("\n".join(dictionary))
 
         # write config file
         config_template = u""
         with codecs.open("config_template.ini", "r", "utf-8") as f:
             config_template = f.read()
         config_file = os.path.join(prediction_dir, "{0}.ini".format(
-            l['iso_639_3']))
+            iso_639_3))
         with codecs.open(config_file, "w", "utf-8") as f:
-            f.write(config_template.format(l['iso_639_3']))
+            f.write(config_template.format(iso_639_3))
 
 ###################################### Helpers
 
