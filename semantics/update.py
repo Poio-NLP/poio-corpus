@@ -30,10 +30,8 @@ def main(argv):
     config = Config(config_file)
 
     semantics_dir = os.path.join("..", "build", "semantics")
-    #os.chdir(semantics_dir)
-    corpus_dir = os.path.abspath(os.path.join("..", "build", "corpus"))
+    corpus_dir = os.path.join("..", "build", "corpus")
 
-    #for f in glob.glob(os.path.join(corpus_dir, "*.zip")):
     for l in config['supported_languages']:
         for f in glob.glob(
                 os.path.join(corpus_dir, "{0}wiki*.zip".format(
