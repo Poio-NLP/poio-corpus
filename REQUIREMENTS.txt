@@ -3,6 +3,7 @@ requests
 beautifulsoup
 poio-api
 graf-python
+pressagio
 rdflib
 config
 numpy
