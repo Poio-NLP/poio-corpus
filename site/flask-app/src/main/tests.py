@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import main
+import __init__
 
 class MainTestCase(unittest.TestCase):
 
@@ -23,24 +24,62 @@ class MainTestCase(unittest.TestCase):
         rv = self.app.get('/corpus')
         assert 'Corpus files' in rv.data
 
-    def test_get_info_for_iso(self):
-        """Test query of geo information"""
-        rv = main.get_info_for_iso('bar')
-        assert rv == { 'label' : u'Bavarian', 'geo': { 'lat': u'47.9232', 'lon': u'13.246' } }
+    def test_tools(self):
+        """Test rendered tools page."""
+        rv = self.app.get('/tools')
+        assert 'Semantic maps' in rv.data
+        assert 'Text prediction' in rv.data
 
-class RdfIsoTestCase(unittest.TestCase):
+    def test_documentation(self):
+        """Test rendered documentation page."""
+        rv = self.app.get('/documentation')
+        assert 'readthedocs.org' in rv.data
 
-    def test_geo(self):
-        """Test query of geo information"""
-        rdf = main.RdfIso('bar')
-        assert rdf.geo() == (u'47.9232', u'13.246')
+    def test_licenses(self):
+        """Test rendered licenses page."""
+        rv = self.app.get('/licenses')
+        assert 'Apache 2.0 License' in rv.data
 
-    def test__label_for_iso(self):
-        """Test query of label"""
-        rdf = main.RdfIso('bar')
-        assert rdf.label() == u'Bavarian'
-        rdf = main.RdfIso('ast')
-        assert rdf.label() == u'Asturian'
+    def test_privacy(self):
+        """Test rendered privacy page."""
+        rv = self.app.get('/privacy')
+        assert 'Personal Data' in rv.data
+
+    def test_imprint(self):
+        """Test rendered imprint page."""
+        rv = self.app.get('/imprint')
+        assert '2395-182 Minde' in rv.data
+
+    def test_get_semantic_map(self):
+        """Test get_semantic_map."""
+        graphdata = __init__.get_semantic_map("bar", "brezn")
+
+        assert len(graphdata) == 50
+
+        assert graphdata[0][0] == u'brezn'
+        assert graphdata[1][0] == u'dampfnudln'
+        assert graphdata[5][0] == u'mej'
+        assert graphdata[6][0] == u'serviat'
+      
+
+    # def test_get_info_for_iso(self):
+    #     """Test query of geo information"""
+    #     rv = main.get_info_for_iso('bar')
+    #     assert rv == { 'label' : u'Bavarian', 'geo': { 'lat': u'47.9232', 'lon': u'13.246' } }
+
+# class RdfIsoTestCase(unittest.TestCase):
+
+#     def test_geo(self):
+#         """Test query of geo information"""
+#         rdf = main.RdfIso('bar')
+#         assert rdf.geo() == (u'47.9232', u'13.246')
+
+#     def test__label_for_iso(self):
+#         """Test query of label"""
+#         rdf = main.RdfIso('bar')
+#         assert rdf.label() == u'Bavarian'
+#         rdf = main.RdfIso('ast')
+#         assert rdf.label() == u'Asturian'
 
 def suite():
     suite = unittest.TestSuite()
