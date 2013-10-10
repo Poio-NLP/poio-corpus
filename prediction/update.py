@@ -15,7 +15,10 @@ import shutil
 import codecs
 import re
 from tempfile import mkdtemp
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 import pressagio.tokenizer
 import pressagio.dbconnector
@@ -29,7 +32,7 @@ def main(argv):
 
     corpus_dir = os.path.abspath(os.path.join("..", "build", "corpus"))
     prediction_dir = os.path.join("..", "build", "prediction")
-    for iso_639_3 in config["LanguagesISOMap"]:
+    for iso_639_3 in config.options("LanguagesISOMap"):
         
         sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
             iso_639_3))
@@ -47,7 +50,7 @@ def main(argv):
 
         for f in glob.glob(
                 os.path.join(corpus_dir, "{0}wiki*.zip".format(
-                    config["LanguagesISOMap"][iso_639_3]))):
+                    iso_639_3))):
             
             _, filename = os.path.split(os.path.abspath(f))
             filebasename, _ = os.path.splitext(filename)

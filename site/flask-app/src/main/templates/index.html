@@ -36,367 +36,198 @@
 
 {% block scripts %}
     <script src="{{ url_for('static', filename='media/js/libs/d3.v3.min.js') }}"></script>
-    <!--<script src="{{ url_for('static', filename='media/js/libs/queue.v1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/queue.v1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='media/js/libs/topojson.v1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>-->
-
-    <!--<script src="{{ url_for('static', filename='media/js/libs/d3.js') }}"></script>-->
-    <script src="{{ url_for('static', filename='media/js/libs/d3.geo.js') }}"></script>
+    <script src="{{ url_for('static', filename='media/js/libs/kinetic-v4.5.4.min.js') }}"></script>
 
 	<script type="text/javascript">
 
-        var width = 1000,
-            height = 600;
+    //////////////////////////////////////////////////////////////// Globals
 
-        var feature;
+    var land;
+    var borders;
+    var tooltipLayer;
+    var dragStarted = false;
+    var lastMouseX = -1;
+    var lastMouseY = -1;
+    var lastR = 0;
+    var worldData;
+    var projection;
+    var path;
+    var c;
 
-        var m0,
-            o0;
+    //////////////////////////////////////////////////////////////// Functions
 
-        var projection = d3.geo.azimuthal()
-            .scale(230)
-            .origin([0, 0])
-            .mode("orthographic")
-            .translate([width / 2, height / 2]);
+    function drawLand() {
+        c.beginPath();
+        c.fillStyle = "#acf";
+        path(land);
+        c.fill();
+          
+        c.beginPath();
+        c.strokeStyle = "#fff"; 
+        c.lineWidth = .5;
+        path(borders);
+        c.stroke();
+    }
 
-        var circle = d3.geo.greatCircle()
-            .origin(projection.origin());
+    function drawLanguages() {
+       var languages = JSON.parse('{{ languages_json }}');
+       Object.keys(languages).forEach(function (key) {
+            var value = languages[key]
+            var centerX = projection([value.geo.lon, value.geo.lat])[0];
+            var centerY = projection([value.geo.lon, value.geo.lat])[1];
 
-        var path = d3.geo.path()
-            .projection(projection);
-
-        // var zoomvar = d3.behavior.zoom(true)
-        //     //.translate(projection.origin())
-        //     .scale(projection.scale())
-        //     .scaleExtent([100, 800])
-        //     .on("zoom", move);
-
-        var svg = d3.select("#map").append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .on("mousedown", mousedown)
-            //.append("g")
-            //.attr("class", "ggroup");
-            //.call(zoomvar);
-
-        var g = svg.append("g");
-
-        //var dotslayer = svg.selectAll("path").append("dotslayer")
-
-        d3.json("{{ url_for('static', filename='media/data/world-countries.json') }}", function(collection) {
-          feature = g.selectAll("path")
-            .data(collection.features)
-            .enter().append("path")
-            .style("fill", "#acf")
-            .style("stroke", "#fff")
-            .style("stroke-width", ".5px")
-            .attr("d", clip);
-        });
-
-        d3.select(window)
-            .on("mousemove", mousemove)
-            .on("mouseup", mouseup);
-
-       /* d3.select("select").on("change", function() {
-          projection.mode(this.value).scale(scale[this.value]);
-          refresh(750);
-        });*/
-
-        transition();
-
-        function draw_languages() {
-            var languages = JSON.parse('{{ languages_json }}');
-            var l = [];
-            Object.keys(languages).forEach(function (key) {
-                l.push(languages[key])
+            var circle = new Kinetic.Circle({
+               x: centerX,
+               y: centerY,
+               fill: "red",
+               stroke: "#330000",
+               strokeWidth: 2,
+               radius: 5
             });
-            var nodes = svg.append("g");
-            var node = nodes.selectAll("circle")
-                .data(l)
-                .enter()
-                .append("circle")
-                .attr("class", "dot")
-                //.attr("id", function(d) { return d[0]; })
-                .attr("cx", function(value) { return projection([value.geo.lon, value.geo.lat])[0]; })
-                .attr("cy", function(value) { return projection([value.geo.lon, value.geo.lat])[1]; })
-                .attr("r", 5.5)
-                .style("fill", "red")
-                .style("stroke-width", "2px")
-                .style("stroke", "#330000");
 
-            /*Object.keys(languages).forEach(function (key) {
-                var value = languages[key]
-                var centerX = projection([value.geo.lon, value.geo.lat])[0];
-                var centerY = projection([value.geo.lon, value.geo.lat])[1];
-                alert(centerX + "\n" + centerY);
-                var dots = svg.selectAll("path").append("dot")
-                    .attr("cx", centerX)
-                    .attr("cy", centerY)
-                    .attr("r", 5)
-                    .style("fill", "red")
-                    .style("stroke-width", "2px")
-                    .style("stroke", "#330000");
-                });*/
-
-            var tooltip = node.append("text")
-                .attr("x", function(value) { return (projection([value.geo.lon, value.geo.lat])[0]) + 5; })
-                .attr("y", function(value) { return (projection([value.geo.lon, value.geo.lat])[1]) + 15; })
-                //.style("font", "400 14px Droid Sans Mono") // Monospace font to calculate text width
-                .style("fill", "black")
-                //.style("visibility", "hidden")
-                .text(function(value) { return value.label; });
-
-            node.on("mousemove", function(value) {
-                tooltip.style("visibility", "visible");
+            circle.on("mousemove", function(){
+                var mousePos = stage.getMousePosition();
+                tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
+                tooltip.setText(value.label);
+                tooltip.show();
+                tooltipLayer.draw();
                 document.body.style.cursor = "pointer";
             });
-         
-            node.on("mouseout", function() {
-                tooltip.style("visibility", "hidden");
+
+            circle.on("mouseout", function(){
+                tooltip.hide();
+                tooltipLayer.draw();
                 document.body.style.cursor = "default";
             });
 
-        }
 
-        function mousedown() {
-          m0 = [d3.event.pageX, d3.event.pageY];
-          o0 = projection.origin();
-          d3.event.preventDefault();
-        }
+            circle.on("click", function(){
+                window.location = '{{ url_for("corpus") }}#' + key
+            });
 
-        function mousemove() {
-          if (m0) {
-            var m1 = [d3.event.pageX, d3.event.pageY],
-                o1 = [o0[0] + (m0[0] - m1[0]) / 8, o0[1] + (m1[1] - m0[1]) / 8];
-            projection.origin(o1);
-            circle.origin(o1)
-            refresh();
-          }
-        }
+            shapesLayer.add(circle);
 
-        function mouseup() {
-          if (m0) {
-            mousemove();
-            m0 = null;
-          }
-        }
+        });
 
-        function refresh(duration) {
-          (duration ? feature.transition().duration(duration) : feature).attr("d", clip);
-        }
+        var tooltip = new Kinetic.Text({
+            text: "",
+            fontFamily: "Calibri",
+            fontSize: 12,
+            padding: 5,
+            textFill: "white",
+            fill: "black",
+            alpha: 0.75,
+            visible: false
+        });
 
-        function clip(d) {
-          return path(circle.clip(d));
-        }
+        tooltipLayer.add(tooltip);
+        shapesLayer.draw();
+    }
 
-        function move() {
-            if(d3.event){
-                var scale = d3.event.scale;
-                var origin = [d3.event.translate[0] * -1, d3.event.translate[1]];
-                
-                projection.scale(scale);
-                backgroundCircle.attr('r', scale);
-                path.pointRadius(2 * scale / scale0);
- 
-                projection.origin(origin);
-                circle.origin(origin);
-                
-                feature.attr("d", clip);
+    function makeDraggable() {
+        //worldLayer.setDraggable(true);
+        stage.getContainer().addEventListener('mousedown', function(e) {
+            lastMouseX = e.screenX;
+            lastMouseY = e.screenY;
+            dragStarted = true;
+            lastR = projection.rotate();
+        });
+        stage.getContainer().addEventListener('mouseup', function(e) {
+            lastMouseX = -1;
+            lastMouseY = -1;
+            dragStarted = false;
+        });
+        stage.getContainer().addEventListener('mouseout', function(e) {
+            lastMouseX = -1;
+            lastMouseY = -1;
+            dragStarted = false;
+        });
+        stage.getContainer().addEventListener('mousemove', function(e) {
+            if (dragStarted) {
+                var diffX = lastR[0] + ( (e.screenX - lastMouseX) / 10);
+                var diffY = lastR[1] + ( (lastMouseY - e.screenY) / 10);
+
+
+                projection.rotate([diffX, diffY, 0]);
+
+                c.clearRect(0, 0, width, height);
+                tooltipLayer.removeChildren();
+                shapesLayer.removeChildren();
+                drawLand();
+                drawLanguages();
             }
-        }
+        });
+    }
 
-        function transition() {
+    function transitionEnded() {
+        drawLanguages();
+        makeDraggable();
+    }
+
+    //////////////////////////////////////////////////////////////// Main
+
+	var width = 1000,
+	    height = 600;
+
+	/*var canvas = d3.select("#map").append("canvas")
+	    .attr("width", width)
+	    .attr("height", height);*/
+    var stage = new Kinetic.Stage({
+      container: 'map',
+      width: width,
+      height: height
+    });
+    worldLayer = new Kinetic.Layer();
+    shapesLayer = new Kinetic.Layer();
+    tooltipLayer = new Kinetic.Layer();
+    stage.add(worldLayer);
+    stage.add(shapesLayer);
+    stage.add(tooltipLayer);
+
+	c = worldLayer.getContext();
+
+	projection = d3.geo.orthographic()
+	    .scale(250)
+	    .translate([700,250])
+	    .clipAngle(90)
+	    .clipExtent([[0,0],[width,height]]);
+
+	path = d3.geo.path()
+	    .projection(projection)
+	    .context(c);
+	    
+	queue()
+	    .defer(d3.json, '/static/media/data/world-110m.json')
+	    .await(ready);
+
+	function ready(error, world) {
+        worldData = world;
+        land = topojson.feature(worldData, worldData.objects.land);
+	    borders = topojson.mesh(worldData, worldData.objects.countries, function(a, b) { return a !== b; });
+
+	    c.clearRect(0, 0, width, height);
+
+        drawLand();
+
+        (function transition() {
             d3.transition()
             .delay(1000)
             .duration(2500)
             .tween("rotate", function() {
-                var r = d3.interpolate(projection.origin(), [8, 53]);
-                var s = d3.interpolate(projection.scale(), 880);
+                var r = d3.interpolate(projection.rotate(), [-25, -57]);
+                var s = d3.interpolate(projection.scale(), 900);
                 return function(t) {
-                    projection.origin(r(t));
-                    circle.origin(r(t));
+                    projection.rotate(r(t));
                     projection.scale(s(t));
-                    //c.clearRect(0, 0, width, height);
-                    //draw_land();
-                    feature.attr("d", clip);
-                    //refresh();
+                    c.clearRect(0, 0, width, height);
+                    drawLand();
                 };
             })
-            .each("end", draw_languages);
-        }
-
-
-
-// 	var width = 1000,
-// 	    height = 600;
-
-// 	/*var canvas = d3.select("#map").append("canvas")
-// 	    .attr("width", width)
-// 	    .attr("height", height);*/
-//     var stage = new Kinetic.Stage({
-//       container: 'map',
-//       width: width,
-//       height: height
-//       //draggable: true              //ATTEMPT 3 DRAG: FAIL BUGS OUT
-//     });
-//     var worldLayer = new Kinetic.Layer();
-//     var shapesLayer = new Kinetic.Layer();
-//     var tooltipLayer = new Kinetic.Layer();
-
-// // ATTEMPT 2 TO ZOOM/PAN: FAIL
-//     //ZOOM BUGS OUT AND NO PAN
-//     document.getElementById("map").addEventListener("mousewheel", function(e) {
-//         var zoomAmount = e.wheelDeltaY*0.0001;
-//         stage.setScale(stage.getScale().x+zoomAmount);
-//         stage.draw();
-//         e.preventDefault();
-//     }, false)
-
-//     stage.on("dragstart dragmove", function(e) {window.draggingNode = true;});
-//     stage.on("dragend", function(e) { window.draggingNode = false;});
-//     stage.on("mousedown", function(e) {
-//         if (window.draggingNode) return false;
-//         if (e.which==1) {
-//             window.draggingStart = {x: e.pageX, y: e.pageY, stageX: stage.getX(), stageY: stage.getY()};
-//             window.draggingStage = true;
-//         }
-//     });
-//     stage.on("mousemove", function(e) {
-//         if (window.draggingNode || !window.draggingStage) return false;
-//         stage.setX(window.draggingStart.stageX+(e.pageX-window.draggingStart.x));
-//         stage.setY(window.draggingStart.stageY+(e.pageY-window.draggingStart.y));
-//         stage.draw();
-//     });
-//     stage.on("mouseup", function(e) { window.draggingStage = false } );
-
-//     stage.add(worldLayer);
-//     stage.add(shapesLayer);
-//     stage.add(tooltipLayer);
-
-// 	var c = worldLayer.getContext();
-
-// 	var projection = d3.geo.orthographic()
-// 	    .scale(250)
-// 	    .translate([700,250])
-// 	    .clipAngle(90)
-// 	    .clipExtent([[0,0],[width,height]]);
-
-// /*  ATTEMPT 1 TO ZOOM/PAN: FAIL
-//     var zoomvar = d3.behavior.zoom()
-//         .on("zoom", zoom);
-
-//     stage.call(zoomvar);
-
-//     function zoom() {
-//          stage.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-//     }*/
-
-// 	var path = d3.geo.path()
-// 	    .projection(projection)
-// 	    .context(c);
-	    
-// 	queue()
-// 	    .defer(d3.json, '/static/media/data/world-110m.json')
-// 	    .await(ready);
-
-// 	function ready(error, world) {
-// 	  var land = topojson.feature(world, world.objects.land),
-// 	      countries = topojson.feature(world, world.objects.countries),
-// 	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
-
-// 	  c.clearRect(0, 0, width, height);
-	  
-// 	  function draw_land() {
-//         c.beginPath();
-//     	c.fillStyle = "#acf";
-// 		path(land);
-// 		c.fill();
-		  
-// 		c.beginPath();
-// 		c.strokeStyle = "#fff"; 
-// 		c.lineWidth = .5;
-// 		path(borders);
-// 		c.stroke();
-// 	  }
-// 	  draw_land();
-
-// 	  function draw_languages() {
-// 	    var languages = JSON.parse('{{ languages_json }}');
-// 	    Object.keys(languages).forEach(function (key) {
-// 	      var value = languages[key]
-// 	      var centerX = projection([value.geo.lon, value.geo.lat])[0];
-// 	      var centerY = projection([value.geo.lon, value.geo.lat])[1];
-
-// 	      var circle = new Kinetic.Circle({
-// 	        x: centerX,
-//             y: centerY,
-//             fill: "red",
-//             stroke: "#330000",
-//             strokeWidth: 2,
-//             radius: 5
-//           });
-
-//           circle.on("mousemove", function(){
-//             var mousePos = stage.getMousePosition();
-//             tooltip.setPosition(mousePos.x + 5, mousePos.y - 20);
-//             tooltip.setText(value.label);
-//             tooltip.show();
-//             tooltipLayer.draw();
-//             document.body.style.cursor = "pointer";
-//           });
- 
-//           circle.on("mouseout", function(){
-//             tooltip.hide();
-//             tooltipLayer.draw();
-//             document.body.style.cursor = "default";
-//           });
-
-
-//           circle.on("click", function(){
-//           	window.location = '{{ url_for('corpus') }}#' + key
-//           });
-
-//           shapesLayer.add(circle);
-
-// 	  	});
-
-//   	    var tooltip = new Kinetic.Text({
-//   	      text: "",
-// 	      fontFamily: "Calibri",
-// 	      fontSize: 12,
-// 	      padding: 5,
-// 	      textFill: "white",
-// 	      fill: "black",
-// 	      alpha: 0.75,
-// 	      visible: false
-// 	    });
-// 		tooltipLayer.add(tooltip);
-//         shapesLayer.draw();
-// 	  }
-
-// 	  function show_languages() {
-// 	  	draw_languages();
-// 	  }
- 
-	  // (function transition() {
-	  //   d3.transition()
-	  //     .delay(1000)
-	  //     .duration(2500)
-	  //     .tween("rotate", function() {
-	  //       var r = d3.interpolate(projection.rotate(), [-25, -57]);
-	  //       var s = d3.interpolate(projection.scale(), 900);
-	  //       return function(t) {
-	  //         projection.rotate(r(t));
-	  //         projection.scale(s(t));
-	  //         c.clearRect(0, 0, width, height);
-			//   draw_land();
-	  // 		  //draw_languages();
-	  //       };
-	  //     })
-	  //     .each("end", show_languages)
-	  // })();
-
-	  // }
+            .each("end", transitionEnded)
+        })();
+    }
 
 	</script>
 {% endblock %}
