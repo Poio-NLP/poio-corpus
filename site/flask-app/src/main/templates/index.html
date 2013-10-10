@@ -77,25 +77,25 @@
 	    .await(ready);
 
 	function ready(error, world) {
-	  var land = topojson.feature(world, world.objects.land),
-	      countries = topojson.feature(world, world.objects.countries),
-	      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+        var land = topojson.feature(world, world.objects.land),
+	    countries = topojson.feature(world, world.objects.countries),
+	    borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
 
-	  c.clearRect(0, 0, width, height);
+	    c.clearRect(0, 0, width, height);
 	  
-	  function draw_land() {
-        c.beginPath();
-    	c.fillStyle = "#acf";
-		path(land);
-		c.fill();
-		  
-		c.beginPath();
-		c.strokeStyle = "#fff"; 
-		c.lineWidth = .5;
-		path(borders);
-		c.stroke();
-	  }
-	  draw_land();
+	    function draw_land() {
+            c.beginPath();
+        	c.fillStyle = "#acf";
+    		path(land);
+    		c.fill();
+    		  
+    		c.beginPath();
+    		c.strokeStyle = "#fff"; 
+    		c.lineWidth = .5;
+    		path(borders);
+    		c.stroke();
+	    }
+        draw_land();
 
 	  function draw_languages() {
 	    var languages = JSON.parse('{{ languages_json }}');
