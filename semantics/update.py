@@ -18,24 +18,28 @@ import zipfile
 import shutil
 import pickle
 from tempfile import mkdtemp
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
-from config import Config
 import numpy as np
 import scipy.sparse
 from sparsesvd import sparsesvd
 import graf
 
 def main(argv):
-    config_file = file(os.path.join('..', 'config.ini'))
-    config = Config(config_file)
+    config_file = os.path.join('..', 'config.ini')
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
     semantics_dir = os.path.join("..", "build", "semantics")
     corpus_dir = os.path.join("..", "build", "corpus")
 
-    for l in config['supported_languages']:
+    for iso_639_3 in config.options("LanguagesISOMap"):
         for f in glob.glob(
                 os.path.join(corpus_dir, "{0}wiki*.zip".format(
-                    l['iso_639_1']))):
+                    iso_639_3))):
 
             _, filename = os.path.split(os.path.abspath(f))
             filebasename, _ = os.path.splitext(filename)
@@ -43,7 +47,7 @@ def main(argv):
             print("Processing {0}".format(filename))
 
             stopwords_file = os.path.join("..", "build", "stopwords",
-                "{0}.txt".format(l['iso_639_3']))
+                "{0}.txt".format(iso_639_3))
             if not os.path.exists(stopwords_file):
                 print("  No stopwords file found, skipping.")
                 continue
@@ -163,27 +167,25 @@ def main(argv):
             # <codecell>
 
             out = open(os.path.join(
-                semantics_dir, "{0}-ut.bin".format(l['iso_639_3'])), "wb")
+                semantics_dir, "{0}-ut.bin".format(iso_639_3)), "wb")
             np.save(out, ut)
             out.close()
 
             out = open(os.path.join(
-                semantics_dir, "{0}-s.bin".format(l['iso_639_3'])), "wb")
+                semantics_dir, "{0}-s.bin".format(iso_639_3)), "wb")
             np.save(out, s)
             out.close()
 
             out = open(os.path.join(
-                semantics_dir, "{0}-vt.bin".format(l['iso_639_3'])), "wb")
+                semantics_dir, "{0}-vt.bin".format(iso_639_3)), "wb")
             np.save(out, vt)
             out.close()
 
             with open(os.path.join(
                     semantics_dir, "{0}-indices.pickle".format(
-                        l['iso_639_3'])), "wb") as f:
+                        iso_639_3)), "wb") as f:
                 pickle.dump(keys_indices, f, 2)
 
-
-###################################### Helpers
 
 if __name__ == "__main__":
     main(sys.argv)
