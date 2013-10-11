@@ -7,14 +7,14 @@
 </div>
 <div id="teaser" style="position:absolute; top:50px; left: 20px; width:360px;">
 
-	<h1>The Poio Corpus</h1>
-	<h2>Language Technologies for Lesser-Used Languages</h2>
+	<h1>Poio</h1>
+	<h3>Technologies for language diversity</h3>
 	<p style="text-align:left;">
-	  The Poio Corpus is a freely available collection of language resources for the lesser-used languages. The data is extracted from free sources like Wikipedia, dictionaries, documents, websites and others. <a href="{{ url_for('about') }}">More...</a>
+	  Poio is a free and open source predictive text and transliteration system for lesser-used languages. We support text input for languages like Bavarian, Chechen and Sorbian on mobile phones and desktop computers. <a href="{{ url_for('about') }}">Read more about the Poio project...</a>
 	</p>
 </div> <!-- teaser -->
 
-<div id="mailchimp" style="position:absolute; top:370px; left: 20px;">
+<div id="mailchimp" style="position:absolute; top:390px; left: 20px;">
 	<!-- Begin MailChimp Signup Form -->
 	<link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
 	<style type="text/css">
@@ -104,7 +104,7 @@
 
 
             circle.on("click", function(){
-                window.location = '{{ url_for("corpus") }}#' + key
+                window.location = '/tools/prediction/' + key
             });
 
             shapesLayer.add(circle);

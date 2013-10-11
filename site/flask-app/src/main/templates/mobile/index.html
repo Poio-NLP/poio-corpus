@@ -1,0 +1,21 @@
+{% extends "mobile/base.j2" %}
+
+{% block title %}
+        <h3>
+            Poio
+        </h3>
+{% endblock %}
+
+{% block main %}
+        <div data-role="fieldcontain">
+            <input name="" id="searchinput1" placeholder="Search languages..." value=""
+            type="search">
+        </div>
+        <ul data-role="listview" data-divider-theme="b" data-inset="true">
+            {% for l in languages: %}
+            <li data-theme="c">
+                {{ l }}
+            </li>
+            {% endfor %}
+        </ul>
+{% endblock %}
