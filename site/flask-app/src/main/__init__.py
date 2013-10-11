@@ -77,8 +77,9 @@ def index(template):
             languages_json = Markup(languages_json))
 
 @app.route("/about")
-def about():
-    return render_template('about.html')
+@mobile_template('{mobile/}about.html')
+def about(template):
+    return render_template(template)
 
 @app.route("/corpus")
 def corpus():
@@ -142,8 +143,9 @@ def tools_semantics(iso, term=None):
                 map=None, term=term)
 
 @app.route("/tools/prediction/<iso>")
-def tools_prediction(iso):
-    return render_template('tools_prediction.html', iso=iso)
+@mobile_template('{mobile/}tools_prediction.html')
+def tools_prediction(template, iso):
+    return render_template(template, iso=iso)
 
 @app.route("/_prediction")
 def prediction():
