@@ -34,12 +34,12 @@ def main(argv):
 
         target_path = os.path.join(static_data_path, subdir, filename)
         #print("Checking if file {0} exists...".format(target_path))
-        if not os.path.exists(target_path):
-            download_url = url + "/" + file_url
-            print("  downloading from {0}...".format(download_url))
-            r = requests.get(download_url)
-            with open(target_path, "wb") as f:
-                f.write(r.content)
+        #if not os.path.exists(target_path):
+        download_url = url + "/" + file_url
+        print("  downloading from {0}...".format(download_url))
+        r = requests.get(download_url)
+        with open(target_path, "wb") as f:
+            f.write(r.content)
 
 if __name__ == "__main__":
     main(sys.argv)
