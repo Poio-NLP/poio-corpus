@@ -39,7 +39,9 @@ def main(argv):
         print("  downloading from {0}...".format(download_url))
         r = requests.get(download_url, stream=True)
         with open(target_path, "wb") as f:
-            f.write(r.content)
+            for chunk in r.iter_content(1024):
+                f.write(chunk)
+            #f.write(r.content)
 
 if __name__ == "__main__":
     main(sys.argv)
