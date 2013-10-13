@@ -69,24 +69,6 @@ $(function() {
         return false;
     });
 
-    /*$('textarea#prediction').keypress(function(event) {
-        if ( ( (event.which) ? event.which : event.keyCode == 112 ) ||
-                ( (event.which) ? event.which : event.keyCode == 113 ) ||
-                ( event.keyCode == 114 ) ||
-                ( event.keyCode == 115 ) ||
-                ( event.keyCode == 116 ) ||
-                ( event.keyCode == 117 ) ) { //112-123
-            event.preventDefault();
-            i = event.keyCode - 112;
-            text = $("#predict-" + i).text();
-            prevText = $('textarea[name="prediction"]').val();
-            newText = prevText.substr(0, prevText.lastIndexOf(" "));
-            newText += " ";
-            newText += text;
-            newText += " ";
-            $('textarea[name="prediction"]').val(newText)
-        }        
-    });*/
 });
 </script>
 

@@ -1,0 +1,100 @@
+{% extends "mobile/base.j2" %}
+
+{% block title %}
+        <h3>
+            Poio Writetyper
+        </h3>
+{% endblock %}
+
+{% block main %}
+<form>
+    <textarea cols="40" rows="20" name="prediction" id="prediction" placeholder="Type your text here..." autocorrect="off" autocapitalize="off"></textarea>
+        <div id="predictor">
+        <span class="predicted-word"><span id="predict-0"></span></span>
+        <span class="predicted-word"><span id="predict-1"></span></span>
+        <span class="predicted-word"><span id="predict-2"></span></span>
+        <span class="predicted-word"><span id="predict-3"></span></span>
+        <span class="predicted-word"><span id="predict-4"></span></span>
+        <span class="predicted-word"><span id="predict-5"></span></span>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+
+<script language="javascript">
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<script language="javascript">
+/*function captureKeyCode(evt)
+{
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (    ( charCode == 112 ) ||
+            ( charCode == 113 ) ||
+            ( charCode == 114 ) ||
+            ( charCode == 115 ) ||
+            ( charCode == 116 ) ||
+            ( charCode == 117 ) ) {
+        i = charCode - 112;
+        text = $("#predict-" + i).text();
+        prevText = $('textarea[name="prediction"]').val();
+        newText = prevText.substr(0, prevText.lastIndexOf(" "));
+        newText += " ";
+        newText += text;
+        newText += " ";
+        $('textarea[name="prediction"]').val(newText);
+        return false;
+    }
+    else return true;
+}*/
+</script>
+
+
+
+<script language="javascript">
+$(function() {
+
+    $('textarea#prediction').bind('input propertychange', function() {
+        $.getJSON($SCRIPT_ROOT + '/_prediction', {
+            text: $('textarea[name="prediction"]').val(),
+            iso : '{{ iso }}'
+        }, function(data) {
+            var length = data.length, element = null;
+            for (var i = 0; i < length; i++) {
+                element = data[i];
+                $("#predict-" + i).text(element)
+            }
+        });
+        return false;
+    });
+
+    $('textarea#prediction').on('focus', function() {
+        setTimeout(function(){
+             window.scrollTo(0, $('textarea#prediction').offset().top-10);
+        }, 0);        
+    }).on('keyup', function(){
+        setTimeout(function(){
+             window.scrollTo(0, $('textarea#prediction').offset().top-10);
+        }, 0);
+    });
+
+    for (var i = 0; i < 6; i++) {
+        $("#predict-" + i).on('touchstart', function(e) {
+            e.preventDefault();
+            text = $(this).text();
+            prevText = $('textarea[name="prediction"]').val();
+            newText = prevText.substr(0, prevText.lastIndexOf(" "));
+            newText += " ";
+            newText += text;
+            newText += " ";
+            $('textarea[name="prediction"]').val(newText);
+        }).on('touchend touchcancel', function(e) {
+            e.preventDefault();
+        });
+    }
+
+});
+</script>
+
+{% endblock scripts %}

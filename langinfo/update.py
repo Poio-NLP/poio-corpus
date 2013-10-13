@@ -11,23 +11,26 @@ import sys
 import os
 import glob
 import pickle
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
-from config import Config
 import rdflib
 
 ###################################### Main
 
 def main(argv):
-    config_file = file(os.path.join('..', 'config.ini'))
-    config = Config(config_file)
+    config_file = os.path.join('..', 'config.ini')
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
     languages_data = {}
-    for lang in config['supported_languages']:
-        iso3 = lang['iso_639_3']
-        iso1 = lang['iso_639_1']
 
-        language_info = get_language_info(iso1, iso3)
-        languages_data[iso3] = language_info
+    for iso_639_3 in config.options("LanguagesISOMap"):
+
+        language_info = get_language_info(iso_639_3)
+        languages_data[iso_639_3] = language_info
 
     langinfo_dir = os.path.join("..", "build", "langinfo")
     pickle_file = os.path.join(langinfo_dir, "languages_data.pickle")
@@ -36,12 +39,12 @@ def main(argv):
 
 ###################################### Helpers
 
-def get_language_info(iso1, iso3):
+def get_language_info(iso):
     corpus_dir = os.path.abspath(os.path.join("..", "build", "corpus"))
     corpus_files = []
-    for f in glob.glob(os.path.join(corpus_dir, "{0}*.zip".format(iso1))):
+    for f in glob.glob(os.path.join(corpus_dir, "{0}*.zip".format(iso))):
         corpus_files.append(os.path.basename(f))
-    language_info = get_info_for_iso(iso3)
+    language_info = get_info_for_iso(iso)
     language_info['files'] = corpus_files
     return language_info
 

@@ -6,18 +6,25 @@ import pickle
 import operator
 import json
 import codecs
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from flask import Flask, render_template, Markup, request, url_for, redirect, \
     flash, Response
+from flask.ext.mobility import Mobility
+from flask.ext.mobility.decorators import mobile_template
 
-import rdflib
+#import rdflib
 import numpy as np
 import scipy.spatial
 import scipy.linalg
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import presage
+import pressagio.callback
+import pressagio
 
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -29,6 +36,7 @@ from werkzeug.contrib.cache import SimpleCache
 cache = SimpleCache()
 
 app = Flask(__name__)
+Mobility(app)
 
 languages_data = {}
 languages_data_file = os.path.join(app.static_folder, 'langinfo',
@@ -37,38 +45,41 @@ with open(languages_data_file, "rb") as f:
     languages_data = pickle.load(f)
 
 
-class DemoCallback(presage.PresageCallback):
-    def __init__(self):
-        presage.PresageCallback.__init__(self)
-        self.buffer = ''
+class DemoCallback(pressagio.callback.Callback):
+    def __init__(self, buffer):
+        pressagio.callback.Callback.__init__(self)
+        self.buffer = buffer
 
-    def get_past_stream(self):
+    def past_stream(self):
         return self.buffer
     
-    def get_future_stream(self):
+    def future_stream(self):
         return ''
 
 ###################################### Pages
 
-@app.route("/_index")
-def index_landing():
-    #languages_data = get_languages_data()
-    languages_json = json.dumps(languages_data)
-
-    return render_template('index_landing.html',
-        languages_json = Markup(languages_json))
-
 @app.route("/")
-def index():
-    #languages_data = get_languages_data()
-    languages_json = json.dumps(languages_data)
+@mobile_template('{mobile/}index.html')
+def index(template):
+    if request.MOBILE:
+        languages_iso = {}
+        for iso in languages_data:
+            languages_iso[languages_data[iso]['label']] = iso
+        languages = sorted(languages_iso.keys())
+        return render_template(template, languages = languages,
+            languages_iso = languages_iso)
+        
+    else:
+        #languages_data = get_languages_data()
+        languages_json = json.dumps(languages_data)
 
-    return render_template('index.html',
-        languages_json = Markup(languages_json))
+        return render_template(template,
+            languages_json = Markup(languages_json))
 
 @app.route("/about")
-def about():
-    return render_template('about.html')
+@mobile_template('{mobile/}about.html')
+def about(template):
+    return render_template(template)
 
 @app.route("/corpus")
 def corpus():
@@ -95,7 +106,7 @@ def tools():
     iso_codes_prediction = []
     for iso in iso_codes_all:
         config_file = os.path.join(app.static_folder, 'prediction',
-            "{0}.xml".format(iso))
+            "{0}.ini".format(iso))
         if os.path.exists(config_file):
             iso_codes_prediction.append(iso)
 
@@ -132,20 +143,26 @@ def tools_semantics(iso, term=None):
                 map=None, term=term)
 
 @app.route("/tools/prediction/<iso>")
-def tools_prediction(iso):
-    return render_template('tools_prediction.html', iso=iso)
+@mobile_template('{mobile/}tools_prediction.html')
+def tools_prediction(template, iso):
+    return render_template(template, iso=iso)
 
 @app.route("/_prediction")
 def prediction():
     iso = request.args.get('iso', '', type=str)
-    # Presage owns callback, so we create it and disown it
-    callback = DemoCallback().__disown__()
-    prsg = presage.Presage(callback, os.path.join(app.static_folder, 'prediction', "{0}.xml".format(iso)))
-
     string_buffer = request.args.get('text', '').encode("utf-8")
-    callback.buffer = string_buffer
-    prediction = list(prsg.predict())
-    return Response(json.dumps(prediction), mimetype='application/json')
+
+    db_file = os.path.abspath(os.path.join(app.static_folder, 'prediction', "{0}.sqlite".format(iso)))
+    config_file = os.path.join(app.static_folder, 'prediction', "{0}.ini".format(iso))
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    config.set("DefaultSmoothedNgramPredictor", "dbfilename", db_file)
+
+    callback = DemoCallback(string_buffer)
+    prsgio = pressagio.Pressagio(callback, config)
+    predictions = prsgio.predict()
+
+    return Response(json.dumps(predictions), mimetype='application/json')
 
 @app.route("/documentation")
 def documentation():
