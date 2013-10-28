@@ -150,13 +150,13 @@ def tools_prediction(template, iso):
 @app.route("/_prediction")
 def prediction():
     iso = request.args.get('iso', '', type=str)
-    string_buffer = request.args.get('text', '').encode("utf-8")
+    string_buffer = request.args.get('text', '')
 
     db_file = os.path.abspath(os.path.join(app.static_folder, 'prediction', "{0}.sqlite".format(iso)))
     config_file = os.path.join(app.static_folder, 'prediction', "{0}.ini".format(iso))
     config = configparser.ConfigParser()
     config.read(config_file)
-    config.set("DefaultSmoothedNgramPredictor", "dbfilename", db_file)
+    config.set("Database", "database", db_file)
 
     callback = DemoCallback(string_buffer)
     prsgio = pressagio.Pressagio(callback, config)
