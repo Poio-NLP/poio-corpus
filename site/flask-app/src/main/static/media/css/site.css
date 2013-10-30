@@ -68,6 +68,12 @@ h2 {
   font-size:20px;
 }
 
+h3 {
+  font-size:18px;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
 div, p {
   color: #777;
   margin-bottom: 0.7em;

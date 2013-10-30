@@ -50,7 +50,7 @@ def wikipedia_extractor(file_path, new_wiki_name):
         "-f", "tanl",
         file_path,
         os.path.join(new_wiki_name, "extracted")
-        ], stdout=subprocess.PIPE, shell=True)
+        ], stdout=subprocess.PIPE)
     (out, err) = proc.communicate()
     return (out, err)
         

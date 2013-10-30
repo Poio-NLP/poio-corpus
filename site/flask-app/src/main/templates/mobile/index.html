@@ -1,0 +1,21 @@
+{% extends "mobile/base.j2" %}
+
+{% block title %}
+        <h3>
+            Poio
+        </h3>
+{% endblock %}
+
+{% block main %}
+        <!--<div data-role="fieldcontain">
+            <input name="" id="searchinput1" placeholder="Search languages..." value=""
+            type="search">
+        </div>-->
+        <ul data-role="listview" data-divider-theme="b" data-inset="false" data-filter="true">
+            {% for l in languages: %}
+            <li data-theme="c">
+                <a href="{{ url_for('tools_prediction', iso=languages_iso[l]) }}">{{ l }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+{% endblock %}

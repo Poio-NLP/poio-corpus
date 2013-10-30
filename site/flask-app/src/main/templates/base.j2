@@ -51,9 +51,9 @@
         {% block header %}
         <a href="{{ url_for('index') }}">Start</a>
         <a href="{{ url_for('about') }}">About</a>
-        <a href="{{ url_for('corpus') }}">Corpus</a>
         <a href="{{ url_for('tools') }}">Tools</a>
-        <a href="/documentation">Documentation</a>
+        <a href="{{ url_for('corpus') }}">Corpus</a>
+        <a href="{{ url_for('documentation') }}">Documentation</a>
         <!--<a href="semantics">Blog</a>-->
         {%- endblock %}
       </div>
