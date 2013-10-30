@@ -18,7 +18,7 @@ Some packages are installed with apt-get:
 * python-lxml
 * python-numpy
 * python-scipy
-* python-presage
+* python-matplotlib
 
 Example::
 
@@ -29,7 +29,6 @@ Some packages are installed with `easy_install
 
 * requests
 * beautifulsoup
-* poio-api
 * graf-python
 * rdflib
 * config
@@ -37,10 +36,23 @@ Some packages are installed with `easy_install
 * sparsesvd
 * regex
 * s3cmd
+* Flask-Mobility
 
 Example:: 
 
 $ sudo easy_install requests
+
+Some must be downloaded from github:
+
+* presagio
+* poio-api
+
+These are avaiable at: `https://github.com/cidles 
+<https://github.com/cidles>`_
+
+To install the packages run::
+
+$ sudo python setup.py install
 
 
 For the Webapp
@@ -66,9 +78,7 @@ Get language data from server
 
 Download data from Amazon::
 
-$ python s3get.py
-
-At this moment an Amazon AWS account is required.
+$ python get_corpus_data.py
 
 
 Run the tests
