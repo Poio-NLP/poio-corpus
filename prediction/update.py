@@ -75,12 +75,18 @@ def main(argv):
                         text_file, ngram_size)
 
                     print("  Writing result to {0}...".format(sql_file))
-                    pressagio.dbconnector.insert_ngram_map(ngram_map,
+                    pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
                         ngram_size, sql_file, False)
 
                     #os.system(
                     #    "text2ngram -n {0} -o {1} -f sqlite -a {2}".format(
                     #        gram, sql_file, text_file))
+
+                print("  Zipping")
+                myzip = zipfile.ZipFile(
+                    "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
+                myzip.write(sql_file)
+                myzip.close()
 
                 # append words to dictionary list
                 doc = ""
