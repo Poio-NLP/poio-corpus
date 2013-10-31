@@ -53,14 +53,19 @@ class MainTestCase(unittest.TestCase):
     def test_get_semantic_map(self):
         """Test get_semantic_map."""
         graphdata = __init__.get_semantic_map("bar", "brezn")
-
         assert len(graphdata) == 50
-
         assert graphdata[0][0] == u'brezn'
-        assert graphdata[1][0] == u'dampfnudln'
-        assert graphdata[5][0] == u'mej'
-        assert graphdata[6][0] == u'serviat'
-      
+
+        rv = self.app.get('/tools/semantics/bar/brezn')
+        assert 'brezn' in rv.data
+        assert 'effentlichkeit' in rv.data
+
+    def test_prediction(self):
+        """Test prediction.""" 
+        rv = self.app.get('/tools/prediction/bar?text=brez')
+        assert 'Text prediction' in rv.data
+        #assert 'Brezn' in rv.data
+
 
     # def test_get_info_for_iso(self):
     #     """Test query of geo information"""
