@@ -36,7 +36,7 @@ Some packages are installed with `easy_install
 * sparsesvd
 * regex
 * s3cmd
-* Flask-Mobility
+* flask-mobility
 
 Example:: 
 
@@ -70,7 +70,7 @@ $ python bootstrap.py
 
 Install all dependencies via buildout::
 
-$ bin/buildout
+$ sudo bin/buildout
 
 
 Get language data from server
