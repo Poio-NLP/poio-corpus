@@ -5,10 +5,8 @@ poio-api
 graf-python
 pressagio
 rdflib
-config
 numpy
 scipy
-presage
 cython
 sparsesvd
 s3cmd
