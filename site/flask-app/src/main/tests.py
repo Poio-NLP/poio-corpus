@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
+#
+# Poio Corpus
+#
+# Copyright (C) 2009-2013 Poio Project
+# Author: Peter Bouda <pbouda@cidles.eu>
+# URL: <http://media.cidles.eu/poio/>
+# For license information, see LICENSE.TXT
+
 import unittest
 import main
-import __init__
 
 class MainTestCase(unittest.TestCase):
 
@@ -52,39 +59,17 @@ class MainTestCase(unittest.TestCase):
 
     def test_get_semantic_map(self):
         """Test get_semantic_map."""
-        graphdata = __init__.get_semantic_map("bar", "brezn")
-        assert len(graphdata) == 50
-        assert graphdata[0][0] == u'brezn'
-
         rv = self.app.get('/tools/semantics/bar/brezn')
+        assert 'fettn' in rv.data
         assert 'brezn' in rv.data
-        assert 'effentlichkeit' in rv.data
 
     def test_prediction(self):
         """Test prediction.""" 
-        rv = self.app.get('/tools/prediction/bar?text=brez')
+        rv = self.app.get('/tools/prediction/bar')
         assert 'Text prediction' in rv.data
-        #assert 'Brezn' in rv.data
 
-
-    # def test_get_info_for_iso(self):
-    #     """Test query of geo information"""
-    #     rv = main.get_info_for_iso('bar')
-    #     assert rv == { 'label' : u'Bavarian', 'geo': { 'lat': u'47.9232', 'lon': u'13.246' } }
-
-# class RdfIsoTestCase(unittest.TestCase):
-
-#     def test_geo(self):
-#         """Test query of geo information"""
-#         rdf = main.RdfIso('bar')
-#         assert rdf.geo() == (u'47.9232', u'13.246')
-
-#     def test__label_for_iso(self):
-#         """Test query of label"""
-#         rdf = main.RdfIso('bar')
-#         assert rdf.label() == u'Bavarian'
-#         rdf = main.RdfIso('ast')
-#         assert rdf.label() == u'Asturian'
+        rv = self.app.get('/_prediction?iso=bar&text=De')
+        assert 'Des' in rv.data
 
 def suite():
     suite = unittest.TestSuite()

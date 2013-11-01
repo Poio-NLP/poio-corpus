@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+#
+# Poio Corpus
+#
+# Copyright (C) 2009-2013 Poio Project
+# Author: Peter Bouda <pbouda@cidles.eu>
+# URL: <http://media.cidles.eu/poio/>
+# For license information, see LICENSE.TXT
+
 import os
 import glob
 import json
@@ -20,14 +28,9 @@ from flask.ext.mobility.decorators import mobile_template
 import numpy as np
 import scipy.spatial
 import scipy.linalg
+
 import pressagio.callback
 import pressagio
-
-font = {'family' : 'normal',
-        'weight' : 'normal',
-        'size'   : 8}
-
-matplotlib.rc('font', **font)
 
 from werkzeug.contrib.cache import SimpleCache
 cache = SimpleCache()
