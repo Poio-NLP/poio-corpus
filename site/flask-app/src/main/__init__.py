@@ -20,9 +20,6 @@ from flask.ext.mobility.decorators import mobile_template
 import numpy as np
 import scipy.spatial
 import scipy.linalg
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import pressagio.callback
 import pressagio
 
@@ -233,19 +230,3 @@ def get_semantic_map(iso, term):
     outputfile.close()
     return graphdata
 
-    # graphdata_json = json.dumps(graphdata)
-    # render_template('tools_semantics.html',
-    #     graphdata_json = Markup(graphdata_json))
-
-    # plt.clf()
-    # plt.figure(1, figsize=(10,6))
-    # plt.plot(tempU[:,1], tempU[:,2], marker="o", linestyle="None")
-    # for label, x, y in zip(words, tempU[:,1], tempU[:,2]):
-    #     plt.annotate(
-    #         label, 
-    #         xy = (x, y), xytext = (-5, 5),
-    #         textcoords = 'offset points', ha = 'right', va = 'bottom',
-    #         bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5))
-    # #plt.show()
-    # plt.savefig(plot_filepath)
-    # return plot_filename
