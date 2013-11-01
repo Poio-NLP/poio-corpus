@@ -38,7 +38,7 @@ def main(argv):
 
     for iso_639_3 in config.options("LanguagesISOMap"):
         for f in glob.glob(
-                os.path.join(corpus_dir, "{0}wiki*.zip".format(
+                os.path.join(corpus_dir, "{0}wiki.zip".format(
                     iso_639_3))):
 
             _, filename = os.path.split(os.path.abspath(f))
@@ -68,11 +68,13 @@ def main(argv):
                 z.extractall(tmp_path)
 
                 gp = graf.GraphParser()
-                g = gp.parse(os.path.join(
-                    tmp_path, "{0}.hdr".format(filebasename)))
+                header_files = glob.glob(os.path.join(
+                    tmp_path,"{0}*.hdr".format(filebasename)))
+                g = gp.parse(header_files[0])
 
-                text = codecs.open(os.path.join(
-                    tmp_path,"{0}.txt".format(filebasename)), "r", "utf-8")
+                text_files = glob.glob(os.path.join(
+                    tmp_path,"{0}*.txt".format(filebasename)))
+                text = codecs.open(text_files[0], "r", "utf-8")
                 txt = text.read()
                 text.close()
 

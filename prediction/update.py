@@ -7,7 +7,7 @@
 # URL: <http://media.cidles.eu/poio/>
 # For license information, see LICENSE.TXT
 
-# Works with Python 3 only
+# Works with Python 2 and 3
 
 import sys
 import os
@@ -16,7 +16,7 @@ import zipfile
 import shutil
 import codecs
 import re
-import tempfile
+from tempfile import mkdtemp
 try:
     import configparser
 except ImportError:
@@ -36,11 +36,11 @@ def main(argv):
     prediction_dir = os.path.join("..", "build", "prediction")
     for iso_639_3 in config.options("LanguagesISOMap"):
         
-        sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
-            iso_639_3))
+        #sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
+        #    iso_639_3))
 
-        if os.path.exists(sql_file):
-            os.remove(sql_file)
+        #if os.path.exists(sql_file):
+        #    os.remove(sql_file)
 
         separators_file = os.path.join(
             "..", "build", "separators", "allchars.txt")
@@ -59,7 +59,9 @@ def main(argv):
 
             print("Processing {0}".format(filename))
 
-            with tempfile.TemporaryDirectory() as tmp_path:
+            try:
+                tmp_path = mkdtemp()
+
                 z = zipfile.ZipFile(f)
                 z.extractall(tmp_path)
 
@@ -80,26 +82,28 @@ def main(argv):
                     ngram_map = pressagio.tokenizer.forward_tokenize_file(
                         text_file, ngram_size)
 
-                    print("  Writing result to {0}...".format(sql_file))
-                    pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
-                        ngram_size, sql_file, False)
+                    print("  Writing result to database...")
+                    pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
+                        ngram_size, iso_639_3, False)
 
-                    #os.system(
-                    #    "text2ngram -n {0} -o {1} -f sqlite -a {2}".format(
-                    #        gram, sql_file, text_file))
+            finally:
+                try:
+                    shutil.rmtree(tmp_path)
+                except WindowsError:
+                    pass
 
-                print("  Zipping")
-                myzip = zipfile.ZipFile(
-                    "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
-                myzip.write(sql_file)
-                myzip.close()
-                os.remove(sql_file)
+                #print("  Zipping")
+                #myzip = zipfile.ZipFile(
+                #    "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
+                #myzip.write(sql_file)
+                #myzip.close()
+                #os.remove(sql_file)
 
                 # append words to dictionary list
-                doc = ""
-                with codecs.open(text_file, "r", "utf-8") as f:
-                    doc = f.read()
-                dictionary.extend(_words_for_document(doc, separators))
+                #doc = ""
+                #with codecs.open(text_file, "r", "utf-8") as f:
+                #    doc = f.read()
+                #dictionary.extend(_words_for_document(doc, separators))
 
 
         # write dictionary file
