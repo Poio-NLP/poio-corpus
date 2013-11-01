@@ -7,6 +7,8 @@
 # URL: <http://media.cidles.eu/poio/>
 # For license information, see LICENSE.TXT
 
+# Works with Python 3 only
+
 import sys
 import os
 import glob
@@ -14,7 +16,7 @@ import zipfile
 import shutil
 import codecs
 import re
-from tempfile import mkdtemp
+import tempfile
 try:
     import configparser
 except ImportError:
@@ -49,7 +51,7 @@ def main(argv):
         dictionary = []
 
         for f in glob.glob(
-                os.path.join(corpus_dir, "{0}wiki*.zip".format(
+                os.path.join(corpus_dir, "{0}wiki.zip".format(
                     iso_639_3))):
             
             _, filename = os.path.split(os.path.abspath(f))
@@ -57,14 +59,18 @@ def main(argv):
 
             print("Processing {0}".format(filename))
 
-            try:
-                tmp_path = mkdtemp()
-
+            with tempfile.TemporaryDirectory() as tmp_path:
                 z = zipfile.ZipFile(f)
                 z.extractall(tmp_path)
 
-                text_file = os.path.join(
-                    tmp_path,"{0}.txt".format(filebasename))
+                text_files = glob.glob(os.path.join(
+                    tmp_path,"{0}*.txt".format(filebasename)))
+
+                if len(text_files) != 1:
+                    print("  something is wrong with the archive. Exiting.")
+                    sys.exit(1)
+
+                text_file = text_files[0]
 
                 # build n-gramm statistics, requires pressagio:
                 # http://github.com/cidles/pressagio
@@ -87,6 +93,7 @@ def main(argv):
                     "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
                 myzip.write(sql_file)
                 myzip.close()
+                os.remove(sql_file)
 
                 # append words to dictionary list
                 doc = ""
@@ -94,11 +101,6 @@ def main(argv):
                     doc = f.read()
                 dictionary.extend(_words_for_document(doc, separators))
 
-            finally:
-                try:
-                    shutil.rmtree(tmp_path)
-                except:
-                    pass
 
         # write dictionary file
         #dict_file = os.path.join(prediction_dir, "{0}_dict.txt".format(

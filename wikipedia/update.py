@@ -62,11 +62,11 @@ def main(argv):
 
         # check if there is already build for this Wikipedia dump
         output_file = os.path.join(
-            '..', 'build', 'corpus', "{0}-{1}.zip".format(new_wiki_prefix,
+            '..', 'build', 'corpus', "{0}.zip".format(new_wiki_prefix,
                 wiki_date))
-        if os.path.exists(output_file):
-            print("Output file already exists. Skipping.")
-            continue
+        #if os.path.exists(output_file):
+        #    print("Output file already exists. Skipping.")
+        #    continue
 
         # download dump
         print("Downloading {0}...".format(dump_link))
