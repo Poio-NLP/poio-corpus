@@ -91,7 +91,7 @@
 
         var zoomvar = d3.behavior.zoom()
                 .x(x).y(y)
-                .center([width / 2, height / 2])
+                //.center([width / 2, height / 2]) // Always zoom on the center of the canvas
                 .scale(1)
                 .scaleExtent([0.05, 10])
                 .on("zoom", zoom);
