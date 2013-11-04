@@ -94,7 +94,10 @@ def main(argv):
 
             print("  Zipping")
             myzip = zipfile.ZipFile(
-                "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
+                "{0}.zip".format(sql_file),
+                'w',
+                zipfile.ZIP_DEFLATED,
+                True)
             myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
             myzip.close()
             os.remove(sql_file)
