@@ -99,25 +99,25 @@ $ bin/flask-ctl debug fg
 How to get Poio Corpus working on Pycharm
 -----------------------------------------
 
-1. Start by creating a new project with the following settings:
+* Start by creating a new project with the following settings:
 
-   * Project name: Poio Corpus
-   * Location: ~/poio-corpus/site/flask-app/src/main/
-   * Project type: Flask Project
-   * Interpreter: Python 2.7
+  * Project name: Poio Corpus
+  * Location: ~/poio-corpus/site/flask-app/src/main/
+  * Project type: Flask Project
+  * Interpreter: Python 2.7
 
-2. After you press ``Ok`` PyCharm will prompt if you want to create a project from existing sources, press Yes.
+* After you press ``Ok`` PyCharm will prompt if you want to create a project from existing sources, press Yes.
 
-3. In order to run the server from PyCharm you need to add a new confguration for the server, to do this: 
+* In order to run the server from PyCharm you need to add a new confguration for the server, to do this: 
 	
-   * On the menu bar go to ``Run`` and open ``Edit Configurations...``;
-   * Press the ``+`` sign and from the dropdown menu choose ``Python``.
+  * On the menu bar go to ``Run`` and open ``Edit Configurations...``;
+  * Press the ``+`` sign and from the dropdown menu choose ``Python``.
 
-4. Fill in the new confifuration with the following settings and press ``Ok``:
+* Fill in the new confifuration with the following settings and press ``Ok``:
 
-   * Name: Poio Corpus Server
-   * Script: ``bin/flask-ctl``
-   * Script parameters: ``debug fg``
-   * Working directory: ``~/poio-corpus/site/flask-app/``
+  * Name: Poio Corpus Server
+  * Script: ``bin/flask-ctl``
+  * Script parameters: ``debug fg``
+  * Working directory: ``~/poio-corpus/site/flask-app/``
 
 Now every time you want to start the server make sure that the selected configuration on the menu bar is ``Poio Corpus Server`` and just press ``Run`` (play button).
