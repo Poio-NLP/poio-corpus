@@ -1,1 +1,0 @@
-Directory for stopword files.

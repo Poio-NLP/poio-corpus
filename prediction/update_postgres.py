@@ -7,7 +7,7 @@
 # URL: <http://media.cidles.eu/poio/>
 # For license information, see LICENSE.TXT
 
-# Works with Python 2 and 3, requires 64-bit Python
+# Works with Python 2 and 3
 
 import sys
 import os
@@ -36,11 +36,11 @@ def main(argv):
     prediction_dir = os.path.join("..", "build", "prediction")
     for iso_639_3 in config.options("LanguagesISOMap"):
         
-        sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
-            iso_639_3))
+        #sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
+        #    iso_639_3))
 
-        if os.path.exists(sql_file):
-            os.remove(sql_file)
+        #if os.path.exists(sql_file):
+        #    os.remove(sql_file)
 
         separators_file = os.path.join(
             "..", "build", "separators", "allchars.txt")
@@ -83,8 +83,8 @@ def main(argv):
                         text_file, ngram_size)
 
                     print("  Writing result to database...")
-                    pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
-                        ngram_size, sql_file, False, True)
+                    pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
+                        ngram_size, iso_639_3, False)
 
             finally:
                 try:
@@ -92,21 +92,18 @@ def main(argv):
                 except WindowsError:
                     pass
 
-            print("  Zipping")
-            myzip = zipfile.ZipFile(
-                "{0}.zip".format(sql_file),
-                'w',
-                zipfile.ZIP_DEFLATED,
-                True)
-            myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
-            myzip.close()
-            os.remove(sql_file)
+                #print("  Zipping")
+                #myzip = zipfile.ZipFile(
+                #    "{0}.zip".format(sql_file), 'w', zipfile.ZIP_DEFLATED)
+                #myzip.write(sql_file)
+                #myzip.close()
+                #os.remove(sql_file)
 
-            # append words to dictionary list
-            #doc = ""
-            #with codecs.open(text_file, "r", "utf-8") as f:
-            #    doc = f.read()
-            #dictionary.extend(_words_for_document(doc, separators))
+                # append words to dictionary list
+                #doc = ""
+                #with codecs.open(text_file, "r", "utf-8") as f:
+                #    doc = f.read()
+                #dictionary.extend(_words_for_document(doc, separators))
 
 
         # write dictionary file

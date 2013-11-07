@@ -4,32 +4,30 @@ Development
 How to install the requirements
 -------------------------------
 
-A list of all requirements is available in `REQUIREMENTS.txt 
+You can find a list of all requirements in `REQUIREMENTS.txt 
 <https://github.com/cidles/poio-corpus/blob/master/REQUIREMENTS.txt>`_.
 
-Linux/Ubuntu only.
+This documentation is for Linux/Ubuntu only.
 
 
 For the corpus generation and prepartion of language models
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Some packages are installed with apt-get:
+You need to install the following packages with `apt-get`:
 
 * python-lxml
 * python-numpy
 * python-scipy
-* python-presage
 
-Example::
+For example::
 
 $ sudo apt-get install python-lxml
 
-Some packages are installed with `easy_install 
+You need to install the following packages with `easy install
 <https://pypi.python.org/pypi/setuptools>`_:
 
 * requests
 * beautifulsoup
-* poio-api
 * graf-python
 * rdflib
 * config
@@ -38,50 +36,18 @@ Some packages are installed with `easy_install
 * regex
 * s3cmd
 
-Example:: 
+For example:: 
 
 $ sudo easy_install requests
 
+In addition, some packages must be downloaded from github:
 
-For the Webapp
-++++++++++++++
+* presagio
+* poio-api
 
-This will install all requirements and prepare the Webapp for launch.
+These are avaiable at: `https://github.com/cidles 
+<https://github.com/cidles>`_
 
+To install the packages run::
 
-Initialize your enviroment
-..........................
-
-Bootstrap the buildout environment::
-
-$ python bootstrap.py
-
-Install all dependencies via buildout::
-
-$ bin/buildout
-
-
-Get language data from server
-.............................
-
-Download data from Amazon::
-
-$ python s3get.py
-
-At this moment an Amazon AWS account is required.
-
-
-Run the tests
-.............
-
-::
-
-$ bin/test
-
-
-Launch the server in development mode
-.....................................
-
-Launch the server::
-
-$ bin/flask-ctl debug fg
+$ sudo python setup.py install
