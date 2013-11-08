@@ -45,18 +45,15 @@ config = configparser.ConfigParser()
 config.read(config_file)
 
 corpus_dir = os.path.join("..", "build", "corpus")
-print(corpus_dir) #p0
 for iso_639_3 in config.options("LanguagesISOMap"):
-    print(iso_639_3) #print1
+    print("Processing {0}".format(iso_639_3))
     for f in glob.glob(
         os.path.join(corpus_dir, "{0}wiki*.zip".format(
             iso_639_3))):
         
-        print(f) #....
         
         _, filename = os.path.split(os.path.abspath(f))
         filebasename, _ = os.path.splitext(filename)
-        print(filebasename) #p...
         try:
             tmp_path = mkdtemp()
 
@@ -69,7 +66,7 @@ for iso_639_3 in config.options("LanguagesISOMap"):
             text = f1.read()
             f1.close()            
             
-            print(text[:1000])
+        
             
         finally:
             try:
@@ -96,7 +93,7 @@ for iso_639_3 in config.options("LanguagesISOMap"):
 
         tokens = collections.defaultdict(int)  
         for w in words:
-            tokens[w] += 1
+            tokens[w.lower()] += 1
        
         for w in sorted(tokens, key=tokens.get, reverse=True)[:length_stopwordlist]:
             f2.write(w + " " + str(tokens[w]) + "\r\n")
