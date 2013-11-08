@@ -25,12 +25,18 @@ import glob
 import codecs
 import urllib2
 import urlparse
+import zipfile
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import requests
-import helpers
 from BeautifulSoup import BeautifulSoup
 
-languages = os.walk('.').next()[1]
+import helpers
 
+languages = os.walk('.').next()[1]
 #list to collect all the languages to prepare
 current_languages = [] 
 
@@ -65,32 +71,64 @@ else:
     print("Preparing the following languages: {0} ...".format(languages))
 
 
-url = "http://dumps.wikimedia.org/backup-index.html"
-html_page = urllib2.urlopen(url)
-soup = BeautifulSoup(html_page)
-
-lang_pages = [(link.string, urlparse.urljoin(url, link['href']))
-                for l in languages
-                    for link in soup('a')
-                        if link.string == l]
-
-for wiki_name, page in lang_pages:
-    wiki_date, dump_link = helpers.dump_link(wiki_name, page)
-           
-
-    if not dump_link:
-        print("Could not find dump link for {0}.".format(wiki_name))
-        sys.exit(1)
-
-    print("Downloading {0}...".format(dump_link))
-    file_path = helpers.download_dump(dump_link, wiki_name)
-   
     
-    helpers.wikipedia_extractor(file_path, wiki_name)
+def main(argv):
+    config_file = os.path.join('..', 'config.ini')
+    config = configparser.ConfigParser()
+    config.read(config_file)
 
-    # Concatenate output files
-    helpers.concatenate(wiki_name)
+    for iso_639_3 in config.options("LanguagesISOMap"):
+        iso_639_1 = config.get("LanguagesISOMap", iso_639_3)
+        wiki_prefix = "{0}wiki".format(iso_639_1)
+        new_wiki_prefix = "{0}wiki".format(iso_639_3)
 
-    # Calling first clean script
-    print("Cleaning...")
-    helpers.clean_1(wiki_name)
+        # finds out if the language currently dealt with in the for loop is part of the list of languages to prepare
+        # this also means: iso_639_3 code of language to prepare has to be in config file as well as it has to be the folder name
+        if not new_wiki_prefix in languages:
+            print("Skipping {0}, since it does not belong to the languages to prepare".format(new_wiki_prefix))
+            continue
+        
+        print("Processing wikipedia {0} -> {1}...".format(iso_639_1, iso_639_3))
+
+
+        url = "http://dumps.wikimedia.org/backup-index.html"
+        html_page = urllib2.urlopen(url)
+        soup = BeautifulSoup(html_page)
+
+        page = None
+        for link in soup('a'):
+            if link.string == wiki_prefix:
+                page = urlparse.urljoin(url, link['href'])
+
+        # get the link for the dump file
+        wiki_date, dump_link = helpers.dump_link(wiki_prefix, page)
+
+        if not dump_link:
+            sys.stderr.write("Could not find dump link. Abort.")
+            sys.exit(1)
+
+        # check if there is already build for this Wikipedia dump
+        #output_file = os.path.join(
+            #'..', 'build', 'corpus', "{0}.zip".format(new_wiki_prefix,
+                #wiki_date))
+        #if os.path.exists(output_file):
+        #    print("Output file already exists. Skipping.")
+        #    continue
+
+        # download dump
+        print("Downloading {0}...".format(dump_link))
+        file_path = helpers.download_dump(dump_link, wiki_prefix,
+            new_wiki_prefix)
+       
+        print("Running WikiExtractor...")
+        helpers.wikipedia_extractor(file_path, new_wiki_prefix)
+
+        # Concatenate output files
+        helpers.concatenate(new_wiki_prefix)
+
+        # Calling clean scripts
+        print("Cleaning...")
+        helpers.clean_1(new_wiki_prefix)          
+    
+if __name__ == "__main__":
+    main(sys.argv)     
