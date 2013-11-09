@@ -136,7 +136,7 @@ def main(argv):
                     if w not in keys_indices:
                         continue
                     start = i - 15
-                    if i < 0:
+                    if start < 0:
                         start = 0
                     end = len_words
                     if end > i + 15:
