@@ -138,9 +138,9 @@ def main(argv):
                     start = i - 15
                     if start < 0:
                         start = 0
-                    end = len_words
-                    if end > i + 15:
-                        end = i + 15
+                    end = i + 15
+                    if end > len_words:
+                        end = len_words
                     for j, t in enumerate(top_words):
                         if w == t:
                             continue

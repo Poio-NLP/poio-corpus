@@ -84,7 +84,7 @@ def main(argv):
 
                     print("  Writing result to database...")
                     pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
-                        ngram_size, iso_639_3, False)
+                        ngram_size, iso_639_3, False, True)
 
             finally:
                 try:
@@ -113,13 +113,13 @@ def main(argv):
         #    f.write("\n".join(dictionary))
 
         # write config file
-        config_template = u""
-        with codecs.open("config_template.ini", "r", "utf-8") as f:
-            config_template = f.read()
-        config_file = os.path.join(prediction_dir, "{0}.ini".format(
-            iso_639_3))
-        with codecs.open(config_file, "w", "utf-8") as f:
-            f.write(config_template.format(iso_639_3))
+        # config_template = u""
+        # with codecs.open("config_template.ini", "r", "utf-8") as f:
+        #     config_template = f.read()
+        # config_file = os.path.join(prediction_dir, "{0}.ini".format(
+        #     iso_639_3))
+        # with codecs.open(config_file, "w", "utf-8") as f:
+        #     f.write(config_template.format(iso_639_3))
 
 ###################################### Helpers
 

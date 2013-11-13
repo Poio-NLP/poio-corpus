@@ -11,6 +11,7 @@ import sys
 import os
 import glob
 import pickle
+import urllib2
 try:
     import configparser
 except ImportError:
@@ -65,8 +66,12 @@ class RdfIso:
 
     def __init__(self, iso):
         self.g = rdflib.Graph()
-        result = self.g.parse(
-            "http://glottolog.org/resource/languoid/iso/{0}.rdf".format(iso))
+        try:
+            result = self.g.parse(
+                "http://glottolog.org/resource/languoid/iso/{0}.rdf".format(iso))
+        except urllib2.HTTPError:
+            print("Could not get URL for language: {0}".format(iso))
+            raise
         self.subject = self.g.subjects().next()
 
     def geo(self):
