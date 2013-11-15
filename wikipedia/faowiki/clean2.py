@@ -30,7 +30,7 @@ def main(argv):
     f1 = codecs.open(argv[1], "r", "utf-8")
     f2 = codecs.open(argv[2], "w", "utf-8")
 
-    re_wrong_tags = re.compile(u"</\r\n")
+    re_wrong_tags = re.compile(u"</\r?\n")
     
 
     for line in f1:

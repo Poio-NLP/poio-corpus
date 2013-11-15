@@ -33,7 +33,7 @@ def main(argv):
 
     re_wrong_tags = re.compile(u"</noinclude")
     re_wrong_tags2 = re.compile(u"<!--")
-    re_inequation = re.compile(u"<\r\n")
+    re_inequation = re.compile(u"<\r?\n")
     re_inequation2 = re.compile(u"i<\w+")
     re_inequation3 = re.compile(u"i<=\d")
 
@@ -43,7 +43,7 @@ def main(argv):
       
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
-        line = re_inequation.sub("\r\n", line)
+        line = re_inequation.sub("\n", line)
         line = re_inequation2.sub("", line)
         line = re_inequation3.sub("", line)
 

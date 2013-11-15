@@ -31,7 +31,7 @@ def main(argv):
     f2 = codecs.open(argv[2], "w", "utf-8")
 
 
-    re_wrong_tags = re.compile(u"<\r\n")
+    re_wrong_tags = re.compile(u"<\r?\n")
     re_wrong_tags2 = re.compile(u"<'")
     re_wrong_tags3 = re.compile(u"<!-- Note that there must be a space between the end of the redirect code and the template code for this to work properly")
     re_wrong_tags4 = re.compile(u"<১৫[^>]")

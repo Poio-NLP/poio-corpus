@@ -31,7 +31,7 @@ def main(argv):
     f2 = codecs.open(argv[2], "w", "utf-8")
 
 
-    re_wrong_tags = re.compile("<\r\n")
+    re_wrong_tags = re.compile("<\r?\n")
     re_wrong_tags2 = re.compile(u"<__NOTOC__")
     re_wrong_tags3 = re.compile("<reference[^>]")
     re_wrong_tags4 = re.compile("<re[^>]")
@@ -45,7 +45,7 @@ def main(argv):
    
     
     for line in f1:
-        line = re_wrong_tags.sub("\r\n", line)
+        line = re_wrong_tags.sub("\n", line)
         line = re_wrong_tags2.sub("", line) 
         line = re_wrong_tags3.sub("", line) 
         line = re_wrong_tags4.sub("", line)
