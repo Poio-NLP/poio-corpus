@@ -16,6 +16,7 @@ import zipfile
 import shutil
 import codecs
 import re
+import pickle
 from tempfile import mkdtemp
 try:
     import configparser
@@ -35,6 +36,15 @@ def main(argv):
     config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)
+
+    processed = dict()
+    processed_file = os.path.join('..', 'build', 'processed.pickle')
+    if os.path.exists(processed_file):
+        with open(processed_file, 'rb') as f:
+            processed = pickle.load(f)
+
+    if 'prediction' not in processed:
+        processed['prediction'] = dict()
 
     corpus_dir = os.path.abspath(os.path.join("..", "build", "corpus"))
     prediction_dir = os.path.join("..", "build", "prediction")
@@ -57,74 +67,88 @@ def main(argv):
 
         dictionary = []
 
-        for f in glob.glob(
-                os.path.join(corpus_dir, "{0}wiki.zip".format(
-                    iso_639_3))):
+        f = os.path.join(corpus_dir, "{0}wiki.zip".format(iso_639_3))
             
-            _, filename = os.path.split(os.path.abspath(f))
-            filebasename, _ = os.path.splitext(filename)
+        _, filename = os.path.split(os.path.abspath(f))
+        filebasename, _ = os.path.splitext(filename)
 
-            print("Processing {0}".format(filename))
+        print("Processing {0}".format(filename))
 
+        try:
+            tmp_path = mkdtemp()
+
+            z = zipfile.ZipFile(f)
+            z.extractall(tmp_path)
+
+            text_files = glob.glob(os.path.join(
+                tmp_path,"{0}*.txt".format(filebasename)))
+
+            if len(text_files) != 1:
+                print("  something is wrong with the archive. Exiting.")
+                sys.exit(1)
+
+            text_file = text_files[0]
+            match = re.search(iso_639_3 + "wiki-(\d{8}).txt", text_file)
+            if match:
+                wiki_date = match.group(1)
+            else:
+                print("  Could not find date in corpus file. Exiting")
+                sys.exit(1)
+
+            if iso_639_3 in processed['prediction'] and \
+                    int(processed['prediction'][iso_639_3]) <= int(wiki_date) and \
+                    os.path.exists("{0}.zip".format(sql_file)):
+                print "  Corpus files already processed, skipping."
+                continue
+
+            # build n-gramm statistics, requires pressagio:
+            # http://github.com/cidles/pressagio
+            for ngram_size in [1, 2, 3]:
+                print("  Parsing {0} for cardinality {1}...".format(
+                    text_file, ngram_size))
+
+                cutoff = 0
+                if ngram_size == 3 and os.path.getsize(text_file) > 20000:
+                    cutoff = 1
+                if ngram_size == 2 and os.path.getsize(text_file) > 100000:
+                    cutoff = 1
+
+                ngram_map = pressagio.tokenizer.forward_tokenize_file(
+                    text_file, ngram_size, cutoff=cutoff)
+
+                print("  Writing result to sqlite database...")
+                pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
+                    ngram_size, sql_file, False, True)
+
+                print("  Writing result to postgres database...")
+                pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
+                    ngram_size, iso_639_3, False, True)
+
+        finally:
             try:
-                tmp_path = mkdtemp()
+                shutil.rmtree(tmp_path)
+            except WindowsError:
+                pass
 
-                z = zipfile.ZipFile(f)
-                z.extractall(tmp_path)
+        print("  Zipping")
+        myzip = zipfile.ZipFile(
+            "{0}.zip".format(sql_file),
+            'w',
+            zipfile.ZIP_DEFLATED,
+            True)
+        myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
+        myzip.close()
+        os.remove(sql_file)
 
-                text_files = glob.glob(os.path.join(
-                    tmp_path,"{0}*.txt".format(filebasename)))
+        processed['prediction'][iso_639_3] = wiki_date
+        with open(processed_file, 'wb') as f:
+            pickle.dump(processed, f)
 
-                if len(text_files) != 1:
-                    print("  something is wrong with the archive. Exiting.")
-                    sys.exit(1)
-
-                text_file = text_files[0]
-
-                # build n-gramm statistics, requires pressagio:
-                # http://github.com/cidles/pressagio
-                for ngram_size in [1, 2, 3]:
-                    print("  Parsing {0} for cardinality {1}...".format(
-                        text_file, ngram_size))
-
-                    cutoff = 0
-                    if ngram_size == 3 and os.path.getsize(text_file) > 20000:
-                        cutoff = 1
-                    if ngram_size == 2 and os.path.getsize(text_file) > 100000:
-                        cutoff = 1
-
-                    ngram_map = pressagio.tokenizer.forward_tokenize_file(
-                        text_file, ngram_size, cutoff=cutoff)
-
-                    print("  Writing result to sqlite database...")
-                    pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
-                        ngram_size, sql_file, False, True)
-
-                    print("  Writing result to postgres database...")
-                    pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
-                        ngram_size, iso_639_3, False, True)
-
-            finally:
-                try:
-                    shutil.rmtree(tmp_path)
-                except WindowsError:
-                    pass
-
-            print("  Zipping")
-            myzip = zipfile.ZipFile(
-                "{0}.zip".format(sql_file),
-                'w',
-                zipfile.ZIP_DEFLATED,
-                True)
-            myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
-            myzip.close()
-            os.remove(sql_file)
-
-            # append words to dictionary list
-            #doc = ""
-            #with codecs.open(text_file, "r", "utf-8") as f:
-            #    doc = f.read()
-            #dictionary.extend(_words_for_document(doc, separators))
+        # append words to dictionary list
+        #doc = ""
+        #with codecs.open(text_file, "r", "utf-8") as f:
+        #    doc = f.read()
+        #dictionary.extend(_words_for_document(doc, separators))
 
 
         # write dictionary file
