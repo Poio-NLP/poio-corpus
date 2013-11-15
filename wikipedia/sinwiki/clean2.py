@@ -18,7 +18,7 @@
 # >>> ET.parse("sinwiki_cleaned2.xml")
 
 import sys
-import re
+import regex as re
 import codecs
 
 if not len(sys.argv) == 3:
@@ -30,6 +30,9 @@ def main(argv):
     f1 = codecs.open(argv[1], "r", "utf-8")
     f2 = codecs.open(argv[2], "w", "utf-8")
 
+    lines_to_delete = [
+        u"<!-- සංස්කරණ පරික්ෂණ මෙහිදී සිදුකොකිරීමට කාරුණික වන්න. ඒ වෙනුවට පහත බැඳිය පිටපත් කර, ඔබගේ බ්‍රවුසරයේ යොමු කීරුව වෙත අලවා ENTER යතුර ඔබන්න: http://si.wikipedia.org/wiki/විකිපීඩියා:වැලිපිල්ල විකිපීඩියාවේ නව ලිපියක් තැනීම පිළිබඳ තොරතුරු සඳහා, පහත බැඳිය පිටපත් කර ඔබගේ බ්‍රවුසරයේ යොමු කීරුව වෙත අලවන්න: http://si.wikipedia.org/wiki/විකිපීඩියා:ලිපියක්_ඇරඹීම ස්තූතියි, ප්‍රිතීමත් සංස්කරණයක් පතමු!",
+    ]
 
     re_wrong_tags = re.compile(u"<!--ගණිතය") 
     re_wrong_tags2 = re.compile("<\d") 
@@ -43,10 +46,12 @@ def main(argv):
     re_inequation = re.compile(u"Δ\w < 0")
     re_inequation2 = re.compile(u"<funcs\.length")
     re_inequation3 = re.compile(u"<prodtypes\.length")
+    re_dashes = re.compile("--")
 
-
-
-    for line in f1:
+    for i, line in enumerate(f1):
+        if line.rstrip() in lines_to_delete:
+            f2.write("\n")
+            continue        
       
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
@@ -60,7 +65,7 @@ def main(argv):
         line = re_inequation.sub("", line)
         line = re_inequation2.sub("", line)
         line = re_inequation3.sub("", line)
-
+        line = re_dashes.sub("-", line)
 
         f2.write(line)
 

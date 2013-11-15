@@ -14,6 +14,7 @@ import glob
 import codecs
 import urllib2
 import urlparse
+import pickle
 import zipfile
 try:
     import configparser
@@ -28,11 +29,26 @@ import helpers
 ###################################### Main
 
 def main(argv):
+    arg_iso = None
+    if len(argv) > 1:
+        arg_iso = argv[1]
+
     config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)
 
+    processed = dict()
+    processed_file = os.path.join('..', 'build', 'processed.pickle')
+    if os.path.exists(processed_file):
+        with open(processed_file, 'rb') as f:
+            processed = pickle.load(f)
+    else:
+        processed['wikipedia'] = dict()
+
     for iso_639_3 in config.options("LanguagesISOMap"):
+        if arg_iso and iso_639_3 != arg_iso:
+            continue
+
         iso_639_1 = config.get("LanguagesISOMap", iso_639_3)
         wiki_prefix = "{0}wiki".format(iso_639_1)
         new_wiki_prefix = "{0}wiki".format(iso_639_3)
@@ -64,9 +80,12 @@ def main(argv):
         output_file = os.path.join(
             '..', 'build', 'corpus', "{0}.zip".format(new_wiki_prefix,
                 wiki_date))
-        #if os.path.exists(output_file):
-        #    print("Output file already exists. Skipping.")
-        #    continue
+
+        if iso_639_3 in processed['wikipedia'] and \
+                int(processed['wikipedia'][iso_639_3]) <= int(wiki_date) and \
+                os.path.exists(output_file):
+            print "  Wikipedia already processed, skipping."
+            continue
 
         # download dump
         print("Downloading {0}...".format(dump_link))
@@ -126,7 +145,9 @@ def main(argv):
         myzip.write("LICENSE.wikipedia", "LICENSE")
         myzip.close()
 
-        print
+        processed['wikipedia'][iso_639_3] = wiki_date
+        with open(processed_file, 'wb') as f:
+            pickle.dump(processed, f)
 
 if __name__ == "__main__":
     main(sys.argv)
