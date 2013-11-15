@@ -79,8 +79,13 @@ def main(argv):
                 for ngram_size in [1, 2, 3]:
                     print("  Parsing {0} for cardinality {1}...".format(
                         text_file, ngram_size))
+                    cutoff = 0
+                    if ngram_size == 3 and os.path.getsize(text_file) > 20000:
+                        cutoff = 1
+                    if ngram_size == 2 and os.path.getsize(text_file) > 100000:
+                        cutoff = 1
                     ngram_map = pressagio.tokenizer.forward_tokenize_file(
-                        text_file, ngram_size)
+                        text_file, ngram_size, cutoff=cutoff)
 
                     print("  Writing result to database...")
                     pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,

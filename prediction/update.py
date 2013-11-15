@@ -28,6 +28,10 @@ import pressagio.dbconnector
 ###################################### Main
 
 def main(argv):
+    arg_iso = None
+    if len(argv) > 1:
+        arg_iso = argv[1]
+
     config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -36,6 +40,9 @@ def main(argv):
     prediction_dir = os.path.join("..", "build", "prediction")
     for iso_639_3 in config.options("LanguagesISOMap"):
         
+        if arg_iso and iso_639_3 != arg_iso:
+            continue
+
         sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
             iso_639_3))
 
@@ -79,12 +86,23 @@ def main(argv):
                 for ngram_size in [1, 2, 3]:
                     print("  Parsing {0} for cardinality {1}...".format(
                         text_file, ngram_size))
-                    ngram_map = pressagio.tokenizer.forward_tokenize_file(
-                        text_file, ngram_size)
 
-                    print("  Writing result to database...")
+                    cutoff = 0
+                    if ngram_size == 3 and os.path.getsize(text_file) > 20000:
+                        cutoff = 1
+                    if ngram_size == 2 and os.path.getsize(text_file) > 100000:
+                        cutoff = 1
+
+                    ngram_map = pressagio.tokenizer.forward_tokenize_file(
+                        text_file, ngram_size, cutoff=cutoff)
+
+                    print("  Writing result to sqlite database...")
                     pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
                         ngram_size, sql_file, False, True)
+
+                    print("  Writing result to postgres database...")
+                    pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
+                        ngram_size, iso_639_3, False, True)
 
             finally:
                 try:
