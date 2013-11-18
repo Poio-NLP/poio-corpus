@@ -31,10 +31,10 @@ def main(argv):
     f2 = codecs.open(argv[2], "w", "utf-8")
 
 
-    re_wrong_tags = re.compile("<!--\r\n") 
+    re_wrong_tags = re.compile("<!--\r?\n") 
     re_wrong_tags2 = re.compile(u"<ஓ") 
     re_wrong_tags3 = re.compile(u"<\d0")
-    re_wrong_tags4 = re.compile("<\r\n")
+    re_wrong_tags4 = re.compile("<\r?\n")
     re_wrong_tags5 = re.compile("<!-- OVERRIDE FIELD")
     re_wrong_tags6 = re.compile("<MCV0")
     re_wrong_tags7 = re.compile("<len")
