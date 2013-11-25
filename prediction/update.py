@@ -96,7 +96,7 @@ def main(argv):
                 sys.exit(1)
 
             if iso_639_3 in processed['prediction'] and \
-                    int(processed['prediction'][iso_639_3]) <= int(wiki_date) and \
+                    int(processed['prediction'][iso_639_3]) >= int(wiki_date) and \
                     os.path.exists("{0}.zip".format(sql_file)):
                 print "  Corpus files already processed, skipping."
                 continue

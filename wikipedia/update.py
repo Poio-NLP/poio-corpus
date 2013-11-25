@@ -82,7 +82,7 @@ def main(argv):
                 wiki_date))
 
         if iso_639_3 in processed['wikipedia'] and \
-                int(processed['wikipedia'][iso_639_3]) <= int(wiki_date) and \
+                int(processed['wikipedia'][iso_639_3]) >= int(wiki_date) and \
                 os.path.exists(output_file):
             print "  Wikipedia already processed, skipping."
             continue
