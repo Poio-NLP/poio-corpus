@@ -36,7 +36,7 @@ def main(argv):
     re_wrong_tags3 = re.compile(u"<\d0")
     re_wrong_tags4 = re.compile("<\r?\n")
     re_wrong_tags5 = re.compile("<!-- OVERRIDE FIELD")
-    re_wrong_tags6 = re.compile("<MCV0")
+    re_wrong_tags6 = re.compile("<(?=MCV)")
     re_wrong_tags7 = re.compile("<len")
     re_wrong_tags8 = re.compile("</noinclude[^>]")
     re_wrong_tags9 = re.compile("<=")
@@ -48,13 +48,16 @@ def main(argv):
 
 
     for line in f1:
+        if line.startswith("-- Module for converting between different representations of numbers."):
+            f2.write("\n")
+            continue
       
         line = re_wrong_tags.sub("\r\n", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
         line = re_wrong_tags4.sub("\n", line)
         line = re_wrong_tags5.sub("", line)
-        line = re_wrong_tags6.sub("", line)
+        line = re_wrong_tags6.sub("&lt;", line)
         line = re_wrong_tags7.sub("", line)
         line = re_wrong_tags8.sub("", line)
         line = re_wrong_tags9.sub("", line)
