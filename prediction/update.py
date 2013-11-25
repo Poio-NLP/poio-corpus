@@ -118,11 +118,12 @@ def main(argv):
 
                 print("  Writing result to sqlite database...")
                 pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
-                    ngram_size, sql_file, False, True)
+                    ngram_size, sql_file, append=False, create_index=True)
 
                 print("  Writing result to postgres database...")
                 pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,
-                    ngram_size, iso_639_3, False, True)
+                    ngram_size, iso_639_3, append=False, create_index=True,
+                    lowercase=True)
 
         finally:
             try:
