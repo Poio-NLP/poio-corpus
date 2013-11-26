@@ -39,7 +39,18 @@ def main(argv):
     re_dashes2 = re.compile("\-\-")
 
     for line in f1:
-      
+        if line.startswith("<bookdata.authors.length "):
+            f2.write("\n")
+            continue
+
+        if line.startswith("/*global mw, importScriptURI, importScript */"):
+            f2.write("\n")
+            continue
+
+        if line.startswith("var numforms = 0; var wikEdAutoUpdateUrl; var citeUserDateFormat; var refTagURL;"):
+            f2.write("\n")
+            continue
+
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
