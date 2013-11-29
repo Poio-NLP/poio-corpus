@@ -24,7 +24,7 @@ def main(argv):
     re_date = re.compile("\-?\-? ?\d\d?:\d\d, \d\d?. .{2,8}\.? \d\d\d\d \(CES?T\)")
     re_dashes = re.compile("\-\-")
     re_wrong_tags = re.compile("</noinclude[^>]")
-    re_arrows = re.compile("(<==<==<==<|>==>==>==>)")
+    re_arrows = re.compile(u"Dia-  >==>==>==> Umgangs- >==>==>==> Standard- lekte &lt;==&lt;==&lt;==< sprachen &lt;==&lt;==&lt;==< varietäten ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ ┃ │        Niederdeutsch:      │                          ┃ ┃ │Westniederdt. ┆ Ostniederdt.│ Nord-                    ┃ ┃ │────────────────────────────│            Teu-          ┃ ┃ │        Mitteldeutsch:      │                          ┃ ┃ │Westmitteldt. ┆ Ostmittldt. │ Mittel-    to-           ┃ ┃ │───────┘Oberdeutsch:        │            nis-          ┃ ┃ │           Ost-/Südfränkisch│ Süd-                     ┃ ┃ │┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│            men           ┃ ┃ │    ┊Schwäbisch┆            │ deutsch-                 ┃ ┃ │               ┆            │ land                     ┃ ┃ ═════Alemannisch╪════Bairisch══════════════════         ┃ ┃ │            ║  ┆                     │                 ┃ ┃  Schweiz     ║ Österreich                               ┃ ┃  Helvetismen ║ Austriazismen                            ┃ ┃                                                         ┃ ┃ ── ┄┄ Dialekträume: Forschungsgebiet Dialektologie      ┃ ┃ ══ Standardvarietäten: Forschungebiet Standardvarietäten┃ ")
     re_special1 = re.compile("Le<")
     re_special2 = re.compile("ci<:")
     re_img = re.compile(" [^ ]*\.jpg\|")
