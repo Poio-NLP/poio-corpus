@@ -59,6 +59,9 @@ def main(argv):
         if os.path.exists(sql_file):
             os.remove(sql_file)
 
+        postgres_db = pressagio.dbconnector.PostgresDatabaseConnector(iso_639_3)
+        postgres_db.reset_database()
+
         separators_file = os.path.join(
             "..", "build", "separators", "allchars.txt")
         s_f = codecs.open(separators_file, "r", "utf-8")
