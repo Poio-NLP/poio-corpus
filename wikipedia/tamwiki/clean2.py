@@ -41,6 +41,7 @@ def main(argv):
     re_wrong_tags8 = re.compile("</noinclude[^>]")
     re_wrong_tags9 = re.compile("<=")
     re_wrong_tags10 = re.compile(u"<--பங்குபெற்ற நிகழ்வு.")
+    re_wrong_tags11 = re.compile("<!--no empty line here--")
     re_nul = re.compile(chr(0))
     
     
@@ -52,6 +53,7 @@ def main(argv):
             f2.write("\n")
             continue
       
+        line = re_wrong_tags11.sub("", line)
         line = re_wrong_tags.sub("\r\n", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
