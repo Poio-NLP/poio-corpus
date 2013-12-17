@@ -39,6 +39,7 @@ def main(argv):
     re_wrong_tags4 = re.compile(u"<\*కేయు")
     re_wrong_tags5 = re.compile(u"<=")
     re_wrong_tags6 = re.compile("</noinclude[^>]")
+    re_wrong_tags7 = re.compile(u"<references/")
     re_nul = re.compile(chr(0))
        
 
@@ -50,6 +51,7 @@ def main(argv):
         line = re_wrong_tags4.sub("", line)
         line = re_wrong_tags5.sub("", line)
         line = re_wrong_tags6.sub("", line)
+        line = re_wrong_tags7.sub("", line)
         line = re_nul.sub("", line) 
 
 
