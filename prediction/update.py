@@ -100,7 +100,7 @@ def main(argv):
 
             # Force update if ISO was specified on command line
             if arg_iso:
-                wiki_date = 0
+                wiki_date = 30000000
 
             if iso_639_3 in processed['prediction'] and \
                     int(processed['prediction'][iso_639_3]) >= int(wiki_date) and \
