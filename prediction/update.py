@@ -98,6 +98,10 @@ def main(argv):
                 print("  Could not find date in corpus file. Exiting")
                 sys.exit(1)
 
+            # Force update if ISO was specified on command line
+            if arg_iso:
+                wiki_date = 0
+
             if iso_639_3 in processed['prediction'] and \
                     int(processed['prediction'][iso_639_3]) >= int(wiki_date) and \
                     os.path.exists("{0}.zip".format(sql_file)):
