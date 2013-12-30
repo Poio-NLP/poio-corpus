@@ -56,12 +56,6 @@ def main(argv):
         sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
             iso_639_3))
 
-        if os.path.exists(sql_file):
-            os.remove(sql_file)
-
-        postgres_db = pressagio.dbconnector.PostgresDatabaseConnector(iso_639_3)
-        postgres_db.reset_database()
-
         separators_file = os.path.join(
             "..", "build", "separators", "allchars.txt")
         s_f = codecs.open(separators_file, "r", "utf-8")
@@ -98,15 +92,17 @@ def main(argv):
                 print("  Could not find date in corpus file. Exiting")
                 sys.exit(1)
 
-            # Force update if ISO was specified on command line
-            if arg_iso:
-                wiki_date = 30000000
-
-            if iso_639_3 in processed['prediction'] and \
+            if iso_639_3 in processed['prediction'] and (arg_iso or (\
                     int(processed['prediction'][iso_639_3]) >= int(wiki_date) and \
-                    os.path.exists("{0}.zip".format(sql_file)):
+                    os.path.exists("{0}.zip".format(sql_file)))):
                 print "  Corpus files already processed, skipping."
                 continue
+
+            if os.path.exists(sql_file):
+                os.remove(sql_file)
+
+            #postgres_db = pressagio.dbconnector.PostgresDatabaseConnector(iso_639_3)
+            #postgres_db.reset_database()
 
             # build n-gramm statistics, requires pressagio:
             # http://github.com/cidles/pressagio
