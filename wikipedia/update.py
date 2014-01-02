@@ -78,8 +78,7 @@ def main(argv):
 
         # check if there is already build for this Wikipedia dump
         output_file = os.path.join(
-            '..', 'build', 'corpus', "{0}.zip".format(new_wiki_prefix,
-                wiki_date))
+            '..', 'build', 'corpus', "{0}.zip".format(new_wiki_prefix))
 
         if iso_639_3 in processed['wikipedia'] and \
                 int(processed['wikipedia'][iso_639_3]) >= int(wiki_date) and \
