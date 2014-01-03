@@ -26,6 +26,9 @@ def main(argv):
     if len(argv) > 1:
         arg_iso = argv[1]
 
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(script_path)
+
     config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)

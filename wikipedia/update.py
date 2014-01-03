@@ -33,6 +33,9 @@ def main(argv):
     if len(argv) > 1:
         arg_iso = argv[1]
 
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(script_path)
+
     config_file = os.path.join('..', 'config.ini')
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -42,8 +45,10 @@ def main(argv):
     if os.path.exists(processed_file):
         with open(processed_file, 'rb') as f:
             processed = pickle.load(f)
-    else:
+
+    if 'wikipedia' not in processed:
         processed['wikipedia'] = dict()
+
 
     for iso_639_3 in config.options("LanguagesISOMap"):
         if arg_iso and iso_639_3 != arg_iso:
