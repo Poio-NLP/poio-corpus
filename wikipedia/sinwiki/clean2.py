@@ -31,7 +31,9 @@ def main(argv):
     f2 = codecs.open(argv[2], "w", "utf-8")
 
     lines_to_delete = [
+        u'History of File:Bangladesh Jamaat-e-Islami logo.gif. <!-- ADDITIONAL INFORMATIO)"',
         u"<!-- සංස්කරණ පරික්ෂණ මෙහිදී සිදුකොකිරීමට කාරුණික වන්න. ඒ වෙනුවට පහත බැඳිය පිටපත් කර, ඔබගේ බ්‍රවුසරයේ යොමු කීරුව වෙත අලවා ENTER යතුර ඔබන්න: http://si.wikipedia.org/wiki/විකිපීඩියා:වැලිපිල්ල විකිපීඩියාවේ නව ලිපියක් තැනීම පිළිබඳ තොරතුරු සඳහා, පහත බැඳිය පිටපත් කර ඔබගේ බ්‍රවුසරයේ යොමු කීරුව වෙත අලවන්න: http://si.wikipedia.org/wiki/විකිපීඩියා:ලිපියක්_ඇරඹීම ස්තූතියි, ප්‍රිතීමත් සංස්කරණයක් පතමු!",
+        u"iuQmldr m%;s{dj iuQmldr jHdmdrfha$W;a;rS;r mrud¾:$bIaGlr .ekSu ioyd $cd;Hka;rj ms<s.kq ,enQ $iuQmldr m%;sm;a;s $W,a,x.kh fkdfldg $wdrlaId lrñka $ m%.=K lrïka iuQmldr jHdmdrfha$Wkak;sh ioyd $lemùfuka $wjxlj $ wêIaGdk mQ¾jlj$lghq;= lsrSug;a$úYajfha meje;au ioyd$wjYH jkakd jQ $iduh$ idOrK;ajh$ iyfhda.h$ úkdY jkakd jQ $ lsisÿ ls%hdldrlul $lsis osfkl$fkdfhfok njg;a$úYajfha we;s$ish¿ iïm;a j,$ meje;aug $lsisu wdldrhlska$ndOlhla jkakd jQ whqrska $lghq;= fkdlrk njg;a $ tu iïm;aj, meje;au yd ixj¾Okh ioyd $ udf.a ish¿ Yla;Ska fhdod $ wem lem ù $ lghq;= lsrSug;a $ wêIaGdk lrñ' ta ioyd $ m%;s{d foñ'තද පැහැති අකුරු පෙළ"
     ]
 
     re_wrong_tags = re.compile(u"<!--ගණිතය") 
