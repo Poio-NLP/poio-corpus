@@ -51,6 +51,10 @@ def main(argv):
             f2.write("\n")
             continue
 
+        if line.startswith(u"<  ଏହି IRC (Internet Relay Chat) "):
+            f2.write("\n")
+            continue
+
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
