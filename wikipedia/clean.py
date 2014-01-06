@@ -26,8 +26,7 @@ def main(argv):
     re_title = re.compile("(title=\")(.*)(\">)")
     re_xml_tag = re.compile("<(?!/?doc)[^>]*>")
     re_and = re.compile("&")
-    re_lower = re.compile("< ")
-    re_lower2 = re.compile("<(?=\d|=)")
+    re_lower = re.compile("(?<!^)<(?!/?doc|/?xml)")
 
     for i, line in enumerate(f1):
         line = re_title.sub(re_title_cleaned, line)
@@ -35,7 +34,6 @@ def main(argv):
         line = re_xml_tag.sub(" ", line)
         line = re_and.sub("&amp;", line)
         line = re_lower.sub("&lt; ", line)
-        line = re_lower2.sub("&lt;", line)
 
         f2.write(line)
 
