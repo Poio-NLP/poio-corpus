@@ -21,28 +21,11 @@ def main(argv):
     f1 = codecs.open(argv[1], "r", "utf-8")
     f2 = codecs.open(argv[2], "w", "utf-8")
 
-    # re_dashes = re.compile("\-\-")
-    # re_wrong_tags = re.compile("</noinclude[^>]")
-    # re_arrows = re.compile("(<==<==<==<|>==>==>==>)")
-    # re_special1 = re.compile("Le<")
-    # re_special2 = re.compile("ci<:")
-    # re_img = re.compile(" [^ ]*\.jpg\|")
-
     lines_to_delete_startswith = [
         u"// Chechen stemmer // released under GNU GPL 2.0 or later //"
     ]
 
-    lines_to_delete = [
-#        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei  Kategorien die folgende Zeile EINFÜGEN:",
-#        u"  </noinclude</includeonly»<includeonly</includeonly» BITTSCHÖN ENTFERN DII KOMMENTARE </includeonly</includeonly»",
-#        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei Kategorien die folgende Zeile EINFÜGEN:"
-    ]
-
     for line in f1:
-        if line.rstrip() in lines_to_delete:
-            f2.write("\n")
-            continue
-
         deleted_line = False
         for l in lines_to_delete_startswith:
             if line.startswith(l):
