@@ -34,6 +34,7 @@ def main(argv):
     re_wrong_tags = re.compile("</nowiki[^>]") 
     re_wrong_tags2 = re.compile("</gallery[^>]") 
     re_wrong_tags3 = re.compile(u"<ನದಿಯ[^>]")
+    re_wrong_tags4 = re.compile(u"^< (?=ಸದಸ್ಯ[^>])")
 
 
 
@@ -42,7 +43,7 @@ def main(argv):
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
-
+        line = re_wrong_tags4.sub("", line)
 
         f2.write(line)
 
