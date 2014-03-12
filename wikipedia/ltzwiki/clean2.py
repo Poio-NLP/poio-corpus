@@ -37,6 +37,7 @@ def main(argv):
     re_inequation = re.compile(u"<0,1 nm")
     re_inequation2 = re.compile(u"< 4,0")
     re_inequation3 = re.compile(u"< α <")
+    re_inequation4 = re.compile(u"< }")
 
 
 
@@ -48,6 +49,7 @@ def main(argv):
         line = re_inequation.sub("", line)
         line = re_inequation2.sub("", line)
         line = re_inequation3.sub("", line)
+        line = re_inequation4.sub("", line)
 
 
         f2.write(line)
