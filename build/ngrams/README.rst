@@ -1,0 +1,1 @@
+This is the folder to which ngram dumps are written.

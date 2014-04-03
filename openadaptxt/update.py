@@ -143,27 +143,14 @@ def main(argv):
                     dictionary.add(line.strip())
 
             for ngram_size in [1, 2, 3]:
-                pressagio.dbconnector.filter_ngrams_sqlite(dictionary,
-                    ngram_size, sql_file)
                 pressagio.dbconnector.filter_ngrams_postgres(dictionary,
                     ngram_size, iso_639_3)
-
 
         finally:
             try:
                 shutil.rmtree(tmp_path)
             except WindowsError:
                 pass
-
-        print("  Zipping")
-        myzip = zipfile.ZipFile(
-            "{0}.zip".format(sql_file),
-            'w',
-            zipfile.ZIP_DEFLATED,
-            True)
-        myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
-        myzip.close()
-        os.remove(sql_file)
 
         processed['openadaptxt'][iso_639_3] = processed['prediction'][iso_639_3]
         with open(processed_file, 'wb') as f:
