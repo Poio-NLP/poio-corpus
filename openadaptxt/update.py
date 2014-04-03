@@ -61,9 +61,6 @@ def main(argv):
         if arg_iso and iso_639_3 != arg_iso:
             continue
 
-        sql_file = os.path.join(prediction_dir, "{0}.sqlite".format(
-            iso_639_3))
-
         corpus_archive = os.path.join(corpus_dir, "{0}.zip".format(iso_639_3))
         if not os.path.exists(corpus_archive):
             continue
@@ -113,10 +110,6 @@ def main(argv):
                 print("  Adding cardinality {0}...".format(ngram_size+1))
 
                 ngram_map = ngrams[ngram_size]
-
-                print("  Writing result to sqlite database...")
-                pressagio.dbconnector.insert_ngram_map_sqlite(ngram_map,
-                    ngram_size+1, sql_file, append=True, create_index=True)
 
                 print("  Writing result to postgres database...")
                 pressagio.dbconnector.insert_ngram_map_postgres(ngram_map,

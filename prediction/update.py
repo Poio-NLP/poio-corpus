@@ -100,9 +100,6 @@ def main(argv):
                     print "  Corpus files already processed, skipping."
                     continue
 
-                if os.path.exists(sql_file):
-                    os.remove(sql_file)
-
                 # build n-gramm statistics, requires pressagio:
                 # http://github.com/cidles/pressagio
                 for ngram_size in [1, 2, 3]:
@@ -128,16 +125,6 @@ def main(argv):
                     shutil.rmtree(tmp_path)
                 except WindowsError:
                     pass
-
-            print("  Zipping")
-            myzip = zipfile.ZipFile(
-                "{0}.zip".format(sql_file),
-                'w',
-                zipfile.ZIP_DEFLATED,
-                True)
-            myzip.write(sql_file, "{0}.sqlite".format(iso_639_3))
-            myzip.close()
-            os.remove(sql_file)
 
             processed['prediction'][iso_639_3] = wiki_date
             with open(processed_file, 'wb') as f:
