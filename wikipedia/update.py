@@ -9,6 +9,7 @@
 
 import os
 import sys
+import shutil
 import re
 import glob
 import codecs
@@ -148,6 +149,19 @@ def main(argv):
             myzip.write(f, os.path.basename(f))
         myzip.write("LICENSE.wikipedia", "LICENSE")
         myzip.close()
+
+        # Delete alls files
+        print("Cleaning up...")
+        files.append(file_path)
+        for i in range(3):
+            files.append(os.path.join(
+                new_wiki_prefix,
+                "{0}_cleaned{1}.xml".format(new_wiki_prefix, i+1)))
+        files.append(os.path.join(
+                new_wiki_prefix,"{0}.xml".format(new_wiki_prefix)))
+        for f in files:
+            os.remove(f)
+        shutil.rmtree(os.path.join(new_wiki_prefix, "extracted"))
 
         processed['wikipedia'][iso_639_3] = wiki_date
         with open(processed_file, 'wb') as f:
