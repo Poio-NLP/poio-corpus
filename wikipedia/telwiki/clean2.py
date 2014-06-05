@@ -38,12 +38,17 @@ def main(argv):
     re_wrong_tags3 = re.compile(u"</open")
     re_wrong_tags4 = re.compile(u"<\*కేయు")
     re_wrong_tags5 = re.compile(u"<=")
+    re_dashes = re.compile(u"--")
     re_wrong_tags6 = re.compile("</noinclude[^>]")
     re_wrong_tags7 = re.compile(u"<references/")
     re_nul = re.compile(chr(0))
        
 
     for line in f1:
+
+        if line.startswith(u"<!-- sequence to build this list"):
+            f2.write("\n")
+            continue
       
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
@@ -52,6 +57,7 @@ def main(argv):
         line = re_wrong_tags5.sub("", line)
         line = re_wrong_tags6.sub("", line)
         line = re_wrong_tags7.sub("", line)
+        line = re_dashes.sub("-", line)
         line = re_nul.sub("", line) 
 
 
