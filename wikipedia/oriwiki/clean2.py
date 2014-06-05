@@ -55,6 +55,14 @@ def main(argv):
             f2.write("\n")
             continue
 
+        if line.startswith(u"<!-- ଯୁକ୍ତାକ୍ଷର ସବୁ "):
+            f2.write("\n")
+            continue
+
+        if line.strip() == "<!--":
+            f2.write("\n")
+            continue
+
         line = re_wrong_tags.sub("", line)
         line = re_wrong_tags2.sub("", line)
         line = re_wrong_tags3.sub("", line)
