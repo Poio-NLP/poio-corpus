@@ -59,6 +59,10 @@ def main(argv):
             f2.write("\n")
             continue
 
+        if line.startswith(u"<!-- Odia modular. Modular"):
+            f2.write("\n")
+            continue
+
         if line.strip() == "<!--":
             f2.write("\n")
             continue
