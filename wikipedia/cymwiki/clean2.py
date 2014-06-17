@@ -20,6 +20,9 @@ def main(argv):
     f2 = codecs.open(argv[2], "w", "utf-8")
 
     for line in f1:
+        if line.startswith("</noinclude"):
+            continue
+            
         f2.write(line)
 
     f1.close()
