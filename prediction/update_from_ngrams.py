@@ -69,6 +69,8 @@ def main(argv):
                 with codecs.open(ngram_file, "r", "utf-8") as f:
                     for line in f:
                         ngrams = line.split("\t")
+                        if len(ngrams) != (ngram_size + 1) or "" in ngrams:
+                            continue
                         ngram = tuple(ngrams[:ngram_size])
                         count = ngrams[-1]
                         ngram_map[ngram] = count
