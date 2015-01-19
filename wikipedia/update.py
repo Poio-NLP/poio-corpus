@@ -2,7 +2,7 @@
 #
 # Poio Corpus
 #
-# Copyright (C) 2009-2014 Poio Project
+# Copyright (C) 2009-2015 Poio Project
 # Author: Peter Bouda <pbouda@cidles.eu>
 # URL: <http://media.cidles.eu/poio/>
 # For license information, see LICENSE.TXT
@@ -13,8 +13,7 @@ import shutil
 import re
 import glob
 import codecs
-import urllib2
-import urlparse
+import urllib.parse
 import pickle
 import zipfile
 try:
@@ -23,7 +22,7 @@ except ImportError:
     import ConfigParser as configparser
 
 import requests
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import helpers
 
@@ -67,13 +66,13 @@ def main(argv):
             continue
 
         url = "http://dumps.wikimedia.org/backup-index.html"
-        html_page = urllib2.urlopen(url)
-        soup = BeautifulSoup(html_page)
+        html_page = requests.get(url)
+        soup = BeautifulSoup(html_page.content)
 
         page = None
         for link in soup('a'):
             if link.string == wiki_prefix:
-                page = urlparse.urljoin(url, link['href'])
+                page = urllib.parse.urljoin(url, link['href'])
 
         # get the link for the dump file
         wiki_date, dump_link = helpers.dump_link(wiki_prefix, page)
@@ -89,7 +88,7 @@ def main(argv):
         if iso_639_3 in processed['wikipedia'] and \
                 int(processed['wikipedia'][iso_639_3]) >= int(wiki_date) and \
                 os.path.exists(output_file):
-            print "  Wikipedia already processed, skipping."
+            print("  Wikipedia already processed, skipping.")
             continue
 
         # download dump
@@ -150,18 +149,19 @@ def main(argv):
         myzip.write("LICENSE.wikipedia", "LICENSE")
         myzip.close()
 
-        # Delete alls files
-        print("Cleaning up...")
-        files.append(file_path)
-        for i in range(3):
-            files.append(os.path.join(
-                new_wiki_prefix,
-                "{0}_cleaned{1}.xml".format(new_wiki_prefix, i+1)))
-        files.append(os.path.join(
-                new_wiki_prefix,"{0}.xml".format(new_wiki_prefix)))
-        for f in files:
-            os.remove(f)
-        shutil.rmtree(os.path.join(new_wiki_prefix, "extracted"))
+        # Delete all files
+        # print("Cleaning up...")
+        # files.append(file_path)
+        # files.append(os.path.splitext(file_path)[0])
+        # for i in range(3):
+        #     files.append(os.path.join(
+        #         new_wiki_prefix,
+        #         "{0}_cleaned{1}.xml".format(new_wiki_prefix, i+1)))
+        # files.append(os.path.join(
+        #         new_wiki_prefix,"{0}.xml".format(new_wiki_prefix)))
+        # for f in files:
+        #     os.remove(f)
+        # shutil.rmtree(os.path.join(new_wiki_prefix, "extracted"))
 
         processed['wikipedia'][iso_639_3] = wiki_date
         with open(processed_file, 'wb') as f:

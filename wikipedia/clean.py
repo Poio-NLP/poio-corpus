@@ -11,6 +11,7 @@ import sys
 #import regex as re
 import re
 import codecs
+import html
 
 re_apostroph = re.compile("\"")
 
@@ -26,14 +27,18 @@ def main(argv):
     re_title = re.compile("(title=\")(.*)(\">)")
     re_xml_tag = re.compile("<(?!/?doc)[^>]*>")
     re_and = re.compile("&")
+    re_nbsp = re.compile("&nbsp;")
     re_lower = re.compile("(?<!^)<(?!/?doc|/?xml)")
 
     for i, line in enumerate(f1):
+        line = html.unescape(line)
+
         line = re_title.sub(re_title_cleaned, line)
 
         line = re_xml_tag.sub(" ", line)
         line = re_and.sub("&amp;", line)
         line = re_lower.sub("&lt; ", line)
+        line = re_nbsp.sub(" ", line)
 
         f2.write(line)
 

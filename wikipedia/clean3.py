@@ -8,7 +8,7 @@
 # For license information, see LICENSE.TXT
 
 import sys
-import regex as re
+import re
 
 try:
     import xml.etree.cElementTree as ET

@@ -30,13 +30,21 @@ def main(argv):
     re_img = re.compile(" [^ ]*\.jpg\|")
 
     lines_to_delete = [
-        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei  Kategorien die folgende Zeile EINFÜGEN:",
         u"  </noinclude</includeonly»<includeonly</includeonly» BITTSCHÖN ENTFERN DII KOMMENTARE </includeonly</includeonly»",
-        u"<!-- BITTE bei den Biografien der entsprechenden Personen auf der Bearbeitungsseite unten bei Kategorien die folgende Zeile EINFÜGEN:",
-        u"<!--"
+        u"-->",
+        u"<--",
+        u" -->",
+        u"Zur Erklaerung siehe -->",
+        u"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"",
+        u"<?php",
+        u"?>"
     ]
 
     for line in f1:
+        if line.startswith(u"<!--"):
+            f2.write("\n")
+            continue
+
         if line.rstrip() in lines_to_delete:
             f2.write("\n")
             continue

@@ -2,7 +2,7 @@
 #
 # Poio Corpus
 #
-# Copyright (C) 2009-2013 Poio Project
+# Copyright (C) 2009-2015 Poio Project
 # Author: Peter Bouda <pbouda@cidles.eu>
 # URL: <http://media.cidles.eu/poio/>
 # For license information, see LICENSE.TXT
@@ -12,24 +12,24 @@ import sys
 import glob
 import codecs
 import zipfile
+import bz2
 import re
-import urllib2
-import urlparse
+import urllib.parse
 import subprocess
 
 import requests
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 def dump_link(wiki_name, page):
-    html_page = urllib2.urlopen(page)
-    soup = BeautifulSoup(html_page)
+    html_page = requests.get(page)
+    soup = BeautifulSoup(html_page.content)
     all_links = soup('a')
     for l in all_links:
         match = re.match(
             wiki_name + "-(\d{8})-pages-articles.xml.bz2", l.string)
         if match:
             wiki_date = match.group(1)
-            dump_link = urlparse.urljoin(page, l['href'])
+            dump_link = urllib.parse.urljoin(page, l['href'])
             return wiki_date, dump_link
     return None, None
             
@@ -43,20 +43,24 @@ def download_dump(dump_link, wiki_name, new_wiki_name):
     return file_path
 
 def wikipedia_extractor(file_path, new_wiki_name):
-    proc = subprocess.Popen([
-        sys.executable,
-        "WikiExtractor.py",
-        "-w",
-        "-f", "tanl",
-        file_path,
-        os.path.join(new_wiki_name, "extracted")
-        ], stdout=subprocess.PIPE)
-    (out, err) = proc.communicate()
+    out = None; err = None
+    file_path_uncompressed = os.path.splitext(file_path)[0]
+    with bz2.open(file_path, mode="rb") as f, codecs.open(file_path_uncompressed, "w", "utf-8") as o:
+        o.write(f.read().decode("utf-8"))
+
+    with open(file_path_uncompressed, "rb") as f:
+        proc = subprocess.Popen([
+            sys.executable,
+            "WikiExtractor.py",
+            "-b", "200000000000",
+            "-o", os.path.join(new_wiki_name, "extracted")
+            ], stdout=subprocess.PIPE, stdin=f)
+        (out, err) = proc.communicate()
     return (out, err)
         
         
 def concatenate(new_wiki_name):
-    filenames = glob.glob(os.path.join(new_wiki_name, "extracted", "*.raw"))
+    filenames = glob.glob(os.path.join(new_wiki_name, "extracted", "AA", "wiki_*"))
     with codecs.open(os.path.join(
             new_wiki_name, "{0}.xml".format(new_wiki_name)), 'w', 'utf-8')\
             as outfile:
