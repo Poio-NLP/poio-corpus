@@ -2,7 +2,7 @@
 #
 # Poio Corpus
 #
-# Copyright (C) 2009-2015 Poio Project
+# Copyright (C) 2009-2013 Poio Project
 # Author: Peter Bouda <pbouda@cidles.eu>
 # URL: <http://www.poio.eu>
 # For license information, see LICENSE.TXT
@@ -29,15 +29,15 @@ def main(argv):
     prediction_dir = os.path.join("..", "build", "prediction")
     for iso_639_3 in config.options("LanguagesISOMap"):
 
-    	print("Restoring database {0}...".format(iso_639_3))
+        print("Restoring database {0}...".format(iso_639_3))
         
         dump_file = os.path.join(prediction_dir, "{0}.pgdump".format(
             iso_639_3))
 
         #f = codecs.open(dump_file, "w", "utf-8")
-	proc = subprocess.call([cmd_createdb, iso_639_3])
-        proc = subprocess.call([cmd_psql, "-d", iso_639_3, "-f", dump_file])
-       	#f.close()
+        proc = subprocess.call([cmd_createdb, "-U", "postgres", "-h", "localhost", iso_639_3])
+        proc = subprocess.call([cmd_psql, "-U", "postgres", "-h", "localhost", "-d", iso_639_3, "-f", dump_file])
+        #f.close()
 
 
 if __name__ == "__main__":
