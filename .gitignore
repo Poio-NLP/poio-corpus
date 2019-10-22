@@ -2,11 +2,14 @@
 *.pyc
 *.pgdump
 *~
+*.swp
 .idea
 dist/
 doc/_build/
 *-pages-articles.xml.bz2
 extracted/
+venv/
+.ipynb_checkpoints/
 
 site/flask-app/.installed.cfg
 site/flask-app/bin/
