@@ -6,18 +6,7 @@
 .idea
 dist/
 doc/_build/
-*-pages-articles.xml.bz2
-extracted/
 venv/
 .ipynb_checkpoints/
 
-site/flask-app/.installed.cfg
-site/flask-app/bin/
-site/flask-app/develop-eggs/
-site/flask-app/eggs/
-site/flask-app/parts/
-site/flask-app/src/main.egg-info/
-site/flask-app/var/
-wikipedia/*/*.xml
-wikipedia/*/*.hdr
-wikipedia/*/*.txt
+build/
