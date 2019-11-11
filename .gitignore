@@ -8,5 +8,3 @@ dist/
 doc/_build/
 venv/
 .ipynb_checkpoints/
-
-build/

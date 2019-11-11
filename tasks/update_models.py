@@ -1,6 +1,5 @@
 import os
 import json
-import gc
 
 import luigi
 import poiolib.wikipedia
@@ -36,15 +35,21 @@ class Ngrams(luigi.Task):
     def run(self):
         text_file = self.input().fn
         cutoff = 0
-        if self.ngram_size == 3 and os.path.getsize(text_file) > 20000:
-            cutoff = 1
-        if self.ngram_size == 2 and os.path.getsize(text_file) > 100000:
-            cutoff = 1
+        file_size = os.path.getsize(text_file)
+        if self.ngram_size == 3:
+            if file_size > 20000:
+                cutoff = 1
+            elif file_size > 2000000:
+                cutoff = 2
+        if self.ngram_size == 2:
+            if file_size > 100000:
+                cutoff = 1
+            elif file_size > 10000000:
+                cutoff = 2
 
         self.output().makedirs()
-        gc.collect()
         ngram_map = pressagio.tokenizer.forward_tokenize_file(
-            text_file, self.ngram_size, cutoff=cutoff
+            text_file, self.ngram_size, lowercase=True, cutoff=cutoff
         )
 
         pressagio.dbconnector.insert_ngram_map_postgres(
@@ -79,6 +84,9 @@ class AllNgrams(luigi.Task):
     def requires(self):
         return [Ngrams(self.iso_639_3, ngram_size) for ngram_size in [1, 2, 3]]
 
+    def output(self):
+        return self.input()
+
 
 class AllLanguages(luigi.Task):
     def requires(self):
@@ -87,4 +95,11 @@ class AllLanguages(luigi.Task):
         ) as f:
             config = json.load(f)
 
-        return [AllNgrams(iso_639_3) for iso_639_3 in config["languages"]]
+        return [
+            AllNgrams(iso_639_3)
+            for iso_639_3, lang_config in config["languages"].items()
+            if lang_config["corpus"]["use_wikipedia"] == True
+        ]
+
+    def output(self):
+        return self.input()

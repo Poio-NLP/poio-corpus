@@ -1,46 +1,135 @@
 {
-    "languages": [
-        "bar",
-        "kan",
-        "san",
-        "cos",
-        "mal",
-        "ori",
-        "che",
-        "dsb",
-        "hsb",
-        "ewe",
-        "gle",
-        "pan",
-        "tel",
-        "glv",
-        "fao",
-        "sin",
-        "ben",
-        "guj",
-        "mar",
-        "bpy",
-        "nep",
-        "pli",
-        "asm",
-        "roh",
-        "ltz",
-        "tam",
-        "frr",
-        "fur",
-        "stq",
-        "lij",
-        "eus",
-        "gla",
-        "drc",
-        "fry",
-        "afr",
-        "arg",
-        "ast",
-        "hat",
-        "cym",
-        "nds",
-        "lmo"
-    ]
+    "languages": {
+        "bar": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "cos": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "che": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "dsb": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "hsb": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "ewe": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "gle": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "glv": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "fao": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "roh": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "ltz": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "frr": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "fur": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "stq": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "lij": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "eus": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "gla": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "drc": {
+            "corpus": {
+                "use_wikipedia": false
+            }
+        },
+        "fry": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "afr": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "arg": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "ast": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "hat": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "cym": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "nds": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        },
+        "lmo": {
+            "corpus": {
+                "use_wikipedia": true
+            }
+        }
+    }
 }
 
