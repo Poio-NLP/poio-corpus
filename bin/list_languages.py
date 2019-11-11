@@ -1,12 +1,17 @@
 import json
+import os
 
 import poiolib
+
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 def main():
     langinfo = poiolib.LangInfo()
 
-    with open("config.json", "r", encoding="utf-8") as f:
+    with open(
+        os.path.join(SCRIPT_DIR, "..", "config.json"), "r", encoding="utf-8"
+    ) as f:
         languages = json.load(f)["languages"]
 
     for l in languages.keys():
