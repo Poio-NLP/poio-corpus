@@ -1,11 +1,15 @@
 import os
 import json
+import shutil
 
 import luigi
 import poiolib.wikipedia
 import pressagio
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+with open(os.path.join(SCRIPT_DIR, "..", "config.json"), "r", encoding="utf-8") as f:
+    CONFIG = json.load(f)
 
 
 def build_path(iso_639_3, build_type):
@@ -25,31 +29,62 @@ class WikipediaCorpus(luigi.Task):
         )
 
 
+class CopyCorpusFiles(luigi.Task):
+    iso_639_3 = luigi.Parameter()
+
+    def create_corpus_map(self):
+        result = {}
+        if "files" in CONFIG["languages"][self.iso_639_3]["corpus"]:
+            for source_file in CONFIG["languages"][self.iso_639_3]["corpus"]["files"]:
+                file_name = os.path.basename(source_file)
+                result[source_file] = os.path.join(
+                    build_path(self.iso_639_3, "corpus"), file_name
+                )
+        return result
+
+    def run(self):
+        for source_file, target_file in self.create_corpus_map().items():
+            target_path = os.path.basename(target_file)
+            os.makedirs(target_path)
+            shutil.copyfile(source_file, target_file)
+
+    def output(self):
+        return [luigi.LocalTarget(fn) for fn in self.create_corpus_map().values()]
+
+
 class Ngrams(luigi.Task):
     iso_639_3 = luigi.Parameter()
     ngram_size = luigi.IntParameter()
 
     def requires(self):
-        return WikipediaCorpus(self.iso_639_3)
+        result = CopyCorpusFiles(self.iso_639_3)
+        if CONFIG["languages"][self.iso_639_3]["corpus"]["use_wikipedia"] == True:
+            result.append(WikipediaCorpus(self.iso_639_3))
+        return result
+
+    def corpus_size(self):
+        size = 0
+        for target in self.input():
+            size += os.path.getsize(target.fn)
+        return size
 
     def run(self):
-        text_file = self.input().fn
         cutoff = 0
-        file_size = os.path.getsize(text_file)
+        corpus_size = self.corpus_size()
         if self.ngram_size == 3:
-            if file_size > 20000:
+            if corpus_size > 20000:
                 cutoff = 1
-            elif file_size > 2000000:
+            elif corpus_size > 2000000:
                 cutoff = 2
         if self.ngram_size == 2:
-            if file_size > 100000:
+            if corpus_size > 100000:
                 cutoff = 1
-            elif file_size > 10000000:
+            elif corpus_size > 10000000:
                 cutoff = 2
 
-        self.output().makedirs()
-        ngram_map = pressagio.tokenizer.forward_tokenize_file(
-            text_file, self.ngram_size, lowercase=True, cutoff=cutoff
+        files = [target.fn for target in self.input()]
+        ngram_map = pressagio.tokenizer.forward_tokenize_files(
+            files, self.ngram_size, lowercase=True, cutoff=cutoff
         )
 
         pressagio.dbconnector.insert_ngram_map_postgres(
@@ -62,6 +97,7 @@ class Ngrams(luigi.Task):
             normalize=True,
         )
 
+        self.output().makedirs()
         try:
             with open(self.output().fn, "w", encoding="utf-8") as f:
                 for ngram, count in ngram_map.items():
@@ -90,16 +126,7 @@ class AllNgrams(luigi.Task):
 
 class AllLanguages(luigi.Task):
     def requires(self):
-        with open(
-            os.path.join(SCRIPT_DIR, "..", "config.json"), "r", encoding="utf-8"
-        ) as f:
-            config = json.load(f)
-
-        return [
-            AllNgrams(iso_639_3)
-            for iso_639_3, lang_config in config["languages"].items()
-            if lang_config["corpus"]["use_wikipedia"] == True
-        ]
+        return [AllNgrams(iso_639_3) for iso_639_3, _ in CONFIG["languages"].items()]
 
     def output(self):
         return self.input()

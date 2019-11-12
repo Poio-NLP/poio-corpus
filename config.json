@@ -87,7 +87,10 @@
         },
         "drc": {
             "corpus": {
-                "use_wikipedia": false
+                "use_wikipedia": false,
+                "files": [
+                    "/home/pbouda/Data/corpus/drc/cidles.txt"
+                ]
             }
         },
         "fry": {
