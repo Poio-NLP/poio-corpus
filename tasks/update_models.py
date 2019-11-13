@@ -31,6 +31,12 @@ class WikipediaCorpus(luigi.Task):
 
 class CopyCorpusFiles(luigi.Task):
     iso_639_3 = luigi.Parameter()
+    task_complete = False
+    corpus_map = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.corpus_map = self.create_corpus_map()
 
     def create_corpus_map(self):
         result = {}
@@ -43,10 +49,19 @@ class CopyCorpusFiles(luigi.Task):
         return result
 
     def run(self):
-        for source_file, target_file in self.create_corpus_map().items():
+        for source_file, target_file in self.corpus_map.items():
             target_path = os.path.basename(target_file)
-            os.makedirs(target_path)
+            if not os.path.exists(target_path):
+                os.makedirs(target_path)
             shutil.copyfile(source_file, target_file)
+        if len(self.corpus_map) == 0:
+            self.task_complete = True
+
+    def complete(self, *args, **kwargs):
+        if len(self.corpus_map) == 0:
+            return self.task_complete
+        else:
+            return super().complete(*args, **kwargs)
 
     def output(self):
         return [luigi.LocalTarget(fn) for fn in self.create_corpus_map().values()]
@@ -57,34 +72,56 @@ class Ngrams(luigi.Task):
     ngram_size = luigi.IntParameter()
 
     def requires(self):
-        result = CopyCorpusFiles(self.iso_639_3)
+        result = [CopyCorpusFiles(self.iso_639_3)]
         if CONFIG["languages"][self.iso_639_3]["corpus"]["use_wikipedia"] == True:
             result.append(WikipediaCorpus(self.iso_639_3))
         return result
 
+    def input_files(self):
+        filenames = []
+        for target in self.input():
+            if isinstance(target, list):
+                for target_file in target:
+                    filenames.append(target_file.fn)
+            else:
+                filenames.append(target.fn)
+        return filenames
+
     def corpus_size(self):
         size = 0
-        for target in self.input():
-            size += os.path.getsize(target.fn)
+        for target in self.input_files():
+            size += os.path.getsize(target)
         return size
 
     def run(self):
         cutoff = 0
         corpus_size = self.corpus_size()
         if self.ngram_size == 3:
-            if corpus_size > 20000:
-                cutoff = 1
-            elif corpus_size > 2000000:
-                cutoff = 2
-        if self.ngram_size == 2:
-            if corpus_size > 100000:
-                cutoff = 1
+            if corpus_size > 200000000:
+                cutoff = 5
+            elif corpus_size > 100000000:
+                cutoff = 4
+            elif corpus_size > 50000000:
+                cutoff = 3
             elif corpus_size > 10000000:
                 cutoff = 2
+            elif corpus_size > 1000000:
+                cutoff = 1
+        elif self.ngram_size == 2:
+            if corpus_size > 200000000:
+                cutoff = 4
+            elif corpus_size > 100000000:
+                cutoff = 3
+            elif corpus_size > 20000000:
+                cutoff = 2
+            elif corpus_size > 2000000:
+                cutoff = 1
+        elif self.ngram_size == 1:
+            if corpus_size > 100000000:
+                cutoff = 1
 
-        files = [target.fn for target in self.input()]
         ngram_map = pressagio.tokenizer.forward_tokenize_files(
-            files, self.ngram_size, lowercase=True, cutoff=cutoff
+            self.input_files(), self.ngram_size, lowercase=True, cutoff=cutoff
         )
 
         pressagio.dbconnector.insert_ngram_map_postgres(
