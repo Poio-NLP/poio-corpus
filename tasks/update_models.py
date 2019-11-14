@@ -3,7 +3,7 @@ import json
 import shutil
 
 import luigi
-import poiolib.wikipedia
+import poiolib
 import pressagio
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,6 +14,17 @@ with open(os.path.join(SCRIPT_DIR, "..", "config.json"), "r", encoding="utf-8") 
 
 def build_path(iso_639_3, build_type):
     return os.path.join(SCRIPT_DIR, "..", "build", build_type, iso_639_3)
+
+
+def flatten_corpus_files(luigi_input):
+    filenames = []
+    for target in luigi_input:
+        if isinstance(target, list):
+            for target_file in target:
+                filenames.append(target_file.fn)
+        else:
+            filenames.append(target.fn)
+    return filenames
 
 
 class WikipediaCorpus(luigi.Task):
@@ -67,9 +78,8 @@ class CopyCorpusFiles(luigi.Task):
         return [luigi.LocalTarget(fn) for fn in self.create_corpus_map().values()]
 
 
-class Ngrams(luigi.Task):
+class SentenceStartsCapitalMap(luigi.Task):
     iso_639_3 = luigi.Parameter()
-    ngram_size = luigi.IntParameter()
 
     def requires(self):
         result = [CopyCorpusFiles(self.iso_639_3)]
@@ -77,51 +87,52 @@ class Ngrams(luigi.Task):
             result.append(WikipediaCorpus(self.iso_639_3))
         return result
 
-    def input_files(self):
-        filenames = []
-        for target in self.input():
-            if isinstance(target, list):
-                for target_file in target:
-                    filenames.append(target_file.fn)
-            else:
-                filenames.append(target.fn)
-        return filenames
+    def run(self):
+        corpus_files = flatten_corpus_files(self.input())
+        capitals_map = poiolib.capitals.sentence_starts_capital_map(corpus_files)
+        self.output().makedirs()
+        with open(self.output().fn, "w", encoding="utf-8") as f:
+            json.dump(capitals_map, f, indent=2)
+
+    def output(self):
+        return luigi.LocalTarget(
+            os.path.join(build_path(self.iso_639_3, "data"), "capitals_map.json")
+        )
+
+
+class Ngrams(luigi.Task):
+    iso_639_3 = luigi.Parameter()
+    ngram_size = luigi.IntParameter()
+
+    def requires(self):
+        result = [
+            SentenceStartsCapitalMap(self.iso_639_3),
+            CopyCorpusFiles(self.iso_639_3),
+        ]
+        if CONFIG["languages"][self.iso_639_3]["corpus"]["use_wikipedia"] == True:
+            result.append(WikipediaCorpus(self.iso_639_3))
+        return result
+
+    def corpus_files(self):
+        return flatten_corpus_files(self.input()[1:])
 
     def corpus_size(self):
         size = 0
-        for target in self.input_files():
+        for target in self.corpus_files():
             size += os.path.getsize(target)
         return size
 
     def run(self):
         cutoff = 0
         corpus_size = self.corpus_size()
-        if self.ngram_size == 3:
-            if corpus_size > 200000000:
-                cutoff = 5
-            elif corpus_size > 100000000:
-                cutoff = 4
-            elif corpus_size > 50000000:
-                cutoff = 3
-            elif corpus_size > 10000000:
-                cutoff = 2
-            elif corpus_size > 1000000:
-                cutoff = 1
-        elif self.ngram_size == 2:
-            if corpus_size > 200000000:
-                cutoff = 4
-            elif corpus_size > 100000000:
-                cutoff = 3
-            elif corpus_size > 20000000:
-                cutoff = 2
-            elif corpus_size > 2000000:
-                cutoff = 1
-        elif self.ngram_size == 1:
-            if corpus_size > 100000000:
-                cutoff = 1
+        cutoff_map = CONFIG["cutoff_map"][str(self.ngram_size)]
+        for entry in cutoff_map:
+            if corpus_size > entry[0]:
+                cutoff = entry[1]
+                break
 
-        ngram_map = pressagio.tokenizer.forward_tokenize_files(
-            self.input_files(), self.ngram_size, lowercase=True, cutoff=cutoff
+        ngram_map = poiolib.ngrams.corpus_ngrams(
+            self.corpus_files(), self.ngram_size, lowercase=True, cutoff=cutoff
         )
 
         pressagio.dbconnector.insert_ngram_map_postgres(
