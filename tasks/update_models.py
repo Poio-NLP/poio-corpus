@@ -4,7 +4,6 @@ import shutil
 
 import luigi
 import poiolib
-import pressagio
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -134,15 +133,8 @@ class Ngrams(luigi.Task):
         ngram_map = poiolib.ngrams.corpus_ngrams(
             self.corpus_files(), self.ngram_size, lowercase=True, cutoff=cutoff
         )
-
-        pressagio.dbconnector.insert_ngram_map_postgres(
-            ngram_map,
-            self.ngram_size,
-            self.iso_639_3,
-            append=False,
-            create_index=True,
-            lowercase=True,
-            normalize=True,
+        poiolib.ngrams.ngrams_to_postgres(
+            ngram_map, self.ngram_size, self.iso_639_3,
         )
 
         self.output().makedirs()
