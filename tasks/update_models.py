@@ -130,8 +130,14 @@ class Ngrams(luigi.Task):
                 cutoff = entry[1]
                 break
 
+        with open(self.input()[0].fn, "r", encoding="utf-8") as f:
+            capitals_map = json.load(f)
+
         ngram_map = poiolib.ngrams.corpus_ngrams(
-            self.corpus_files(), self.ngram_size, lowercase=True, cutoff=cutoff
+            self.corpus_files(),
+            self.ngram_size,
+            capitals_map=capitals_map,
+            cutoff=cutoff,
         )
         poiolib.ngrams.ngrams_to_postgres(
             ngram_map, self.ngram_size, self.iso_639_3,
