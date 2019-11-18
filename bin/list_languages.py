@@ -7,7 +7,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 def main():
-    langinfo = poiolib.LangInfo()
+    langinfo = poiolib.langinfo.LangInfo()
 
     with open(
         os.path.join(SCRIPT_DIR, "..", "config.json"), "r", encoding="utf-8"
