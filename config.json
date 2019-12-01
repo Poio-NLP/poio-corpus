@@ -132,6 +132,11 @@
             "corpus": {
                 "use_wikipedia": true
             }
+        },
+        "vec": {
+            "corpus": {
+                "use_wikipedia": true
+            }
         }
     },
     "cutoff_map": {
