@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import shutil
 
 import luigi
@@ -140,7 +140,9 @@ class Ngrams(luigi.Task):
             cutoff=cutoff,
         )
         poiolib.ngrams.ngrams_to_postgres(
-            ngram_map, self.ngram_size, self.iso_639_3,
+            ngram_map,
+            self.ngram_size,
+            self.iso_639_3,
         )
 
         self.output().makedirs()
@@ -176,3 +178,7 @@ class AllLanguages(luigi.Task):
 
     def output(self):
         return self.input()
+
+
+if __name__ == "__main__":
+    luigi.build([AllLanguages()], local_scheduler=True)
